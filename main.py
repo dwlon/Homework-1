@@ -37,7 +37,7 @@ soup = BeautifulSoup(raw_html, "html.parser")
 
 codes = soup.select_one("#Code").select("option")
 
-# parsedCodes currently has 1 code for testing
+
 parsedCodes = []
 
 # parsing through all the company codes and adding the to the array

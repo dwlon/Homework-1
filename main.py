@@ -14,7 +14,7 @@ st = time.time()
 
 chrome_options = Options()
 
-# Uncomment these if you do not want chrome to pop-up
+# Comment these if you want chrome to pop-up
 chrome_options.add_argument("--headless")
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")

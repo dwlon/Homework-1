@@ -10,6 +10,10 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import pandas as pd
 import time
+import os
+
+num_threads = os.cpu_count() / 2
+print(num_threads)
 
 def scrape(url):
     chrome_options = Options()
@@ -22,8 +26,6 @@ def scrape(url):
     driver = webdriver.Chrome(options=chrome_options)
 
     driver.get(url)
-
-    print(code)
 
     current = date.today()
 
@@ -55,6 +57,8 @@ def scrape(url):
 
         table = pd.read_html(driver.page_source)
         print(table)
+
+    driver.close()
     return
 
 
@@ -77,7 +81,7 @@ for code in codes:
         parsedCodes.append(code.text)
 
 #currently at 5 max, will stress test later
-with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+with concurrent.futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
     futures = [
         executor.submit(scrape, f"https://www.mse.mk/en/stats/symbolhistory/{code}")
         for code in parsedCodes

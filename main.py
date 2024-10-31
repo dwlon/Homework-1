@@ -1,4 +1,3 @@
-import threading
 import concurrent.futures
 from bs4 import BeautifulSoup
 import requests

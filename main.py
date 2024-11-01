@@ -1,101 +1,97 @@
 import concurrent.futures
+from datetime import date
 from io import StringIO
-from bs4 import BeautifulSoup
 import requests
-from datetime import date, timedelta
-
-from dateutil.relativedelta import relativedelta
-from selenium import webdriver
-from selenium.common import TimeoutException
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from bs4 import BeautifulSoup
+import queue
 import pandas as pd
 import time
-import os
+from dateutil.relativedelta import relativedelta
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
 
-num_threads = int(os.cpu_count() / 2)
-print("Number of browsers:", num_threads)
 
-dates = {}
-currentTime = date.today()
 
-for i in range(0, 10):
-    yearAgo = currentTime - relativedelta(years=1) + timedelta(days=1)
-    if (currentTime - yearAgo).days <= 365:
-        dates[currentTime] = yearAgo
-    else:
-        dates[currentTime] = yearAgo - timedelta(days=1)
+def contains_digit(string):
+    return any(char.isdigit() for char in string)
 
-    dates[currentTime] = yearAgo
-    currentTime = currentTime - timedelta(days=365)
+def scrape(code, driver):
+    driver.get("https://www.mse.mk/en/stats/symbolhistory/" + code)
 
-def scrape(url, driver):
-    driver.get(url)
+    currentDate = today
 
-    for to_date, from_date in dates.items():
-        toDate = WebDriverWait(driver, 1).until(EC.presence_of_element_located((By.ID, "ToDate")))
-        fromDate = WebDriverWait(driver, 1).until(EC.presence_of_element_located((By.ID, "FromDate")))
+    for i in range(0, 10):
+        fromDate = driver.find_element(By.ID, "FromDate")
+        toDate = driver.find_element(By.ID, "ToDate")
 
         fromDate.clear()
         toDate.clear()
-        fromDate.send_keys(from_date.strftime("%m/%d/%Y"))
-        toDate.send_keys(to_date.strftime("%m/%d/%Y"))
 
-        buttons = WebDriverWait(driver, 1).until(
+        yearAgo = currentDate - relativedelta(years=1) + relativedelta(days=1)
+
+        fromDate.send_keys(yearAgo.strftime("%m/%d/%Y"))
+        toDate.send_keys(currentDate.strftime("%m/%d/%Y"))
+
+        currentDate = currentDate - relativedelta(years=1)
+
+        buttons = WebDriverWait(driver, 10).until(
             EC.presence_of_all_elements_located((By.CLASS_NAME, "btn"))
         )
         buttons[1].click()
 
-        try:
-            WebDriverWait(driver, 1).until(
-                EC.presence_of_element_located((By.TAG_NAME, "table"))
-            )
-        except TimeoutException:
-            break
-
+        WebDriverWait(driver, 2).until(EC.presence_of_all_elements_located((By.TAG_NAME, "table")))
         table = pd.read_html(StringIO(driver.page_source))
-        print("Data from: " + fromDate.get_attribute("value") + " - to: " + toDate.get_attribute("value"))
+        print(code)
         print(table)
+    return driver
 
-    return
-
-def has_digits(string):
-    return any(char.isdigit() for char in string)
+today = date.today()
 
 st = time.time()
 
-response = requests.get("https://www.mse.mk/en/stats/symbolhistory/ALK")
-soup = BeautifulSoup(response.text, "html.parser")
-codes = soup.select_one("#Code").select("option")
+if __name__ == '__main__':
+    response = requests.get("https://www.mse.mk/en/stats/symbolhistory/ADIN")
+    soup = BeautifulSoup(response.text, "html.parser")
+    codes = soup.select_one("#Code").select("option")
 
-parsedCodes = [code.text for code in codes if not code.text.startswith("E") and not has_digits(code.text)]
+    q = queue.Queue()
 
-chrome_options = Options()
-# Uncomment these if you want chrome to operate in headless mode
-chrome_options.add_argument("--headless")
-chrome_options.add_argument("--no-sandbox")
-chrome_options.add_argument("--disable-dev-shm-usage")
+    for c in codes:
+        if not c.text.startswith("E") and not contains_digit(c.text):
+            q.put(c.text)
 
-drivers = [webdriver.Chrome(options=chrome_options) for _ in range(num_threads)]
+    # Running x browsers
+    numBrowsers = 6
 
-def worker_task(code, driver):
-    try:
-        scrape(f"https://www.mse.mk/en/stats/symbolhistory/{code}", driver)
-    except Exception as e:
-        print(f"Error processing code {code}: {e}")
+    chrome_options = Options()
+    # Uncomment these if you want the browsers to open
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
 
-with concurrent.futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
-    futures = []
-    for i, code in enumerate(parsedCodes):
-        driver = drivers[i % num_threads]
-        futures.append(executor.submit(worker_task, code, driver))
+    drivers = [webdriver.Chrome(options=chrome_options) for _ in range(numBrowsers)]
 
-    concurrent.futures.wait(futures)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=numBrowsers) as executor:
+        futures = {executor.submit(scrape, q.get(), driver): driver for driver in drivers}
 
-for driver in drivers:
-    driver.quit()
+        while futures:
+            for future in concurrent.futures.as_completed(futures):
+                driver = futures.pop(future)
+
+                try:
+                    future.result()
+                except Exception as e:
+                    print(e)
+
+                if not q.empty():
+                    c = q.get()
+                    futures[executor.submit(scrape, c, driver)] = driver
+
+    for d in drivers:
+     d.quit()
 
 et = time.time()
 total_time = et - st

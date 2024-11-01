@@ -1,4 +1,5 @@
 import concurrent.futures
+import os
 from datetime import date
 from io import StringIO
 import requests
@@ -64,8 +65,7 @@ if __name__ == '__main__':
             q.put(c.text)
 
     # Running x browsers
-    numBrowsers = 6
-
+    numBrowsers = int(os.cpu_count() / 2)
     chrome_options = Options()
     # Uncomment these if you want the browsers to open
     chrome_options.add_argument("--headless")

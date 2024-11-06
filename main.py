@@ -85,8 +85,15 @@ def fetch_issuer_data(issuer, start_date):
                 'date', 'last_trade_price', 'max', 'min', 'avg_price',
                 'percent_change', 'volume', 'turnover_best', 'total_turnover', 'issuer'
             ]
+
             df['date'] = pd.to_datetime(df['date'], format='%m/%d/%Y').dt.strftime('%Y-%m-%d')
-            df = df.apply(pd.to_numeric, errors='coerce', axis=1)
+
+            df[['last_trade_price', 'max', 'min', 'avg_price', 'percent_change',
+                'volume', 'turnover_best', 'total_turnover']] = df[[
+                'last_trade_price', 'max', 'min', 'avg_price', 'percent_change',
+                'volume', 'turnover_best', 'total_turnover']].apply(pd.to_numeric, errors='coerce')
+
+
             data_frames.append(df)
         except ValueError:
             pass
@@ -122,3 +129,10 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+#1 ET with time.sleep() = 389.35 seconds, 376.02
+#2 ET without time.sleep() = 147.75 seconds
+#3 ET #2 + fake user agents, Only https = 124.09 seconds, 127, 125, 128.83
+#4 ET #3 + Random(http https) = 122.31 seconds, 125
+#5 ET #3 + Only http = 111.70 seconds, 121, 128.4

@@ -49,7 +49,7 @@ def get_issuer_codes():
     response = session.get(f"{BASE_URL}/ADIN", headers=HEADERS)
     soup = BeautifulSoup(response.text, "html.parser")
     codes = soup.select_one("#Code").select("option")
-    return [code.text for code in codes if code.text and code.text.isalpha()]
+    return [code.text for code in codes if code.text and code.text.isalpha() and not (code.text.startswith("EU") or code.text.startswith("EV"))]
 
 
 #Filter 2
@@ -129,10 +129,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-#1 ET with time.sleep() = 389.35 seconds, 376.02
-#2 ET without time.sleep() = 147.75 seconds
-#3 ET #2 + fake user agents, Only https = 124.09 seconds, 127, 125, 128.83
-#4 ET #3 + Random(http https) = 122.31 seconds, 125
-#5 ET #3 + Only http = 111.70 seconds, 121, 128.4

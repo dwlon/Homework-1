@@ -23,14 +23,14 @@ def initialize_database():
         CREATE TABLE IF NOT EXISTS stock_data (
             issuer TEXT,
             date TEXT,
-            last_trade_price REAL,
-            max REAL,
-            min REAL,
-            avg_price REAL,
+            last_trade_price TEXT,
+            max TEXT,
+            min TEXT,
+            avg_price TEXT,
             percent_change REAL,
-            volume REAL,
-            turnover_best REAL,
-            total_turnover REAL,
+            volume TEXT,
+            turnover_best TEXT,
+            total_turnover TEXT,
             PRIMARY KEY (issuer, date)
         )
     ''')
@@ -62,10 +62,16 @@ def get_last_available_date(conn, issuer):
     else:
         return (datetime.datetime.now() - datetime.timedelta(days=3650)).strftime("%m/%d/%Y")
 
+#Format used in the MSE website
 def format_date(date):
     return date.strftime("%m/%d/%Y")
 
+# Convert from 1,005.00 to 1.005,00
+# Use it when saving data to database and when converting to numbers (pandas can convert only 1,005.00)
 def switch_delimiters(value):
+    if pd.isna(value):
+        return value
+
     value = str(value)
     value = value.replace(',','_')
     value = value.replace('.',',')
@@ -93,13 +99,16 @@ def fetch_issuer_data(issuer, start_date):
                 'percent_change', 'volume', 'turnover_best', 'total_turnover', 'issuer'
             ]
 
-            df['date'] = pd.to_datetime(df['date'], format='%m/%d/%Y').dt.strftime('%Y-%m-%d')
+            df['date'] = pd.to_datetime(df['date'], format='%m/%d/%Y').dt.strftime('%d.%m.%Y') # Macedonian format for date
 
             columns_to_edit = ['last_trade_price', 'max', 'min', 'avg_price', 'volume', 'turnover_best', 'total_turnover']
 
+            #Note: The requirement was to convert the numbers into Macedonian format (e.g. 21.005,00)
+            #In order to do calculations with this data, the data must be returned back to numeric
             for column in columns_to_edit:
-                df[column] = df[column].apply(lambda x: "{:,.2f}".format(float(x)))
+                df[column] = df[column].apply(lambda x: "{:,.2f}".format(float(x)) if pd.notna(x) else x)
                 df[column] = df[column].apply(switch_delimiters)
+
 
             data_frames.append(df)
         except ValueError:
@@ -115,7 +124,7 @@ def process_issuer(issuer):
         last_date = get_last_available_date(conn, issuer)
         new_data = fetch_issuer_data(issuer, last_date)
         if not new_data.empty:
-            new_data.to_sql("stock_data", conn, if_exists="append", index=False)
+           new_data.to_sql("stock_data", conn, if_exists="append", index=False)
         return f"Processed {issuer}: {len(new_data)} records fetched"
     finally:
         conn.close()

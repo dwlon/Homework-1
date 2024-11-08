@@ -65,6 +65,13 @@ def get_last_available_date(conn, issuer):
 def format_date(date):
     return date.strftime("%m/%d/%Y")
 
+def switch_delimiters(value):
+    value = str(value)
+    value = value.replace(',','_')
+    value = value.replace('.',',')
+    value = value.replace('_','.')
+    return value
+
 #Filter 3
 def fetch_issuer_data(issuer, start_date):
     session = create_session()
@@ -88,11 +95,11 @@ def fetch_issuer_data(issuer, start_date):
 
             df['date'] = pd.to_datetime(df['date'], format='%m/%d/%Y').dt.strftime('%Y-%m-%d')
 
-            df[['last_trade_price', 'max', 'min', 'avg_price', 'percent_change',
-                'volume', 'turnover_best', 'total_turnover']] = df[[
-                'last_trade_price', 'max', 'min', 'avg_price', 'percent_change',
-                'volume', 'turnover_best', 'total_turnover']].apply(pd.to_numeric, errors='coerce')
+            columns_to_edit = ['last_trade_price', 'max', 'min', 'avg_price', 'volume', 'turnover_best', 'total_turnover']
 
+            for column in columns_to_edit:
+                df[column] = df[column].apply(lambda x: "{:,.2f}".format(float(x)))
+                df[column] = df[column].apply(switch_delimiters)
 
             data_frames.append(df)
         except ValueError:

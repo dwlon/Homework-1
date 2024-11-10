@@ -51,20 +51,35 @@ def get_issuer_codes():
     codes = soup.select_one("#Code").select("option")
     return [code.text for code in codes if code.text and code.text.isalpha() and not (code.text.startswith("EU") or code.text.startswith("EV"))]
 
-
-#Filter 2
+#Filter 2 - Specific for date format dd.mm.yyyy, the requirement was to save the data in database in that format.
 def get_last_available_date(conn, issuer):
     cur = conn.cursor()
-    cur.execute("SELECT MAX(date) FROM stock_data WHERE issuer = ?", (issuer,))
-    result = cur.fetchone()[0]
-    if result:
-        return (datetime.datetime.strptime(result, "%Y-%m-%d") + datetime.timedelta(days=1)).strftime("%m/%d/%Y")
+    cur.execute("SELECT date FROM stock_data WHERE issuer = ?", (issuer,))
+    all_dates = [datetime.datetime.strptime(row[0], '%d.%m.%Y') for row in cur.fetchall() if row[0]]
+
+    if all_dates:
+        max_date = max(all_dates) + datetime.timedelta(days=1)
+        return format_date_MSE(max_date)
     else:
-        return (datetime.datetime.now() - datetime.timedelta(days=3650)).strftime("%m/%d/%Y")
+        return format_date_MSE(datetime.datetime.now() - datetime.timedelta(days=3650))
+
+#Filter 2 - Much faster, works only with YYYY-mm-dd date format
+#def get_last_available_date(conn, issuer):
+#    cur = conn.cursor()
+#    cur.execute("SELECT MAX(date) FROM stock_data WHERE issuer = ?", (issuer,))
+#    result = cur.fetchone()[0]
+#    print(result)
+#    if result:
+#        return format_date_MSE((datetime.datetime.strptime(result, '%d.%m.%Y') + datetime.timedelta(days=1)))
+#    else:
+#        return format_date_MSE((datetime.datetime.now() - datetime.timedelta(days=3650)))
 
 #Format used in the MSE website
-def format_date(date):
+def format_date_MSE(date):
     return date.strftime("%m/%d/%Y")
+
+def format_date_database(date):
+    return date.strftime('%d.%m.%Y')
 
 # Convert from 1,005.00 to 1.005,00
 # Use it when saving data to database and when converting to numbers (pandas can convert only 1,005.00)
@@ -87,7 +102,7 @@ def fetch_issuer_data(issuer, start_date):
 
     while current_date <= end_date:
         next_date = min(current_date + datetime.timedelta(days=365), end_date)
-        url = f"{BASE_URL}/{issuer}?FromDate={format_date(current_date)}&ToDate={format_date(next_date)}"
+        url = f"{BASE_URL}/{issuer}?FromDate={format_date_MSE(current_date)}&ToDate={format_date_MSE(next_date)}"
         response = session.get(url, headers=HEADERS)
 
         try:
@@ -99,7 +114,7 @@ def fetch_issuer_data(issuer, start_date):
                 'percent_change', 'volume', 'turnover_best', 'total_turnover', 'issuer'
             ]
 
-            df['date'] = pd.to_datetime(df['date'], format='%m/%d/%Y').dt.strftime('%d.%m.%Y') # Macedonian format for date
+            df['date'] = pd.to_datetime(df['date'], format='%m/%d/%Y').apply(format_date_database) # Macedonian format for date
 
             columns_to_edit = ['last_trade_price', 'max', 'min', 'avg_price', 'volume', 'turnover_best', 'total_turnover']
 
@@ -108,7 +123,6 @@ def fetch_issuer_data(issuer, start_date):
             for column in columns_to_edit:
                 df[column] = df[column].apply(lambda x: "{:,.2f}".format(float(x)) if pd.notna(x) else x)
                 df[column] = df[column].apply(switch_delimiters)
-
 
             data_frames.append(df)
         except ValueError:
@@ -125,20 +139,23 @@ def process_issuer(issuer):
         new_data = fetch_issuer_data(issuer, last_date)
         if not new_data.empty:
            new_data.to_sql("stock_data", conn, if_exists="append", index=False)
-        return f"Processed {issuer}: {len(new_data)} records fetched"
+        #return f"Processed {issuer}: {len(new_data)} records fetched"
     finally:
         conn.close()
 
 def main():
     start_time = time.time()
+
     initialize_database()
     issuer_codes = get_issuer_codes()
-    print(f"Retrieved issuer codes: {issuer_codes}")
+    
+    #print(f"Retrieved issuer codes: {issuer_codes}")
+    #print(len(issuer_codes))
 
     with ThreadPoolExecutor() as executor:
         futures = [executor.submit(process_issuer, issuer) for issuer in issuer_codes]
         for future in as_completed(futures):
-            print(future.result())
+            future.result()
 
     end_time = time.time()
     print(f"Data population completed in {end_time - start_time:.2f} seconds.")

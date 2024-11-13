@@ -16,13 +16,13 @@ ua = UserAgent()
 HEADERS = {'User-Agent': ua.random}
 
 #Set values based on the internet speed, PC performance
-semaphore1 = asyncio.Semaphore(5) # Number of concurrent issuers to be processed
-semaphore2 = asyncio.Semaphore(10) # Numbers of concurrent request to be sent
+semaphore1 = asyncio.Semaphore(10) # Number of concurrent issuers to be processed
+semaphore2 = asyncio.Semaphore(20) # Numbers of concurrent request to be sent
 
 def initialize_database():
-    conn = sqlite3.connect("stock_datap1.db")
+    conn = sqlite3.connect("stock_data.db")
     conn.execute('''
-        CREATE TABLE IF NOT EXISTS stock_datap1 (
+        CREATE TABLE IF NOT EXISTS stock_data (
             issuer TEXT,
             date TEXT,
             last_trade_price REAL,
@@ -50,7 +50,7 @@ async def get_issuer_codes(session):
 #Filter 2
 def get_last_available_date(conn, issuer):
     cur = conn.cursor()
-    cur.execute("SELECT MAX(date) FROM stock_datap1 WHERE issuer = ?", (issuer,))
+    cur.execute("SELECT MAX(date) FROM stock_data WHERE issuer = ?", (issuer,))
     result = cur.fetchone()[0]
     if result:
         return (datetime.datetime.strptime(result, "%Y-%m-%d") + datetime.timedelta(days=1)).strftime("%m/%d/%Y")
@@ -95,7 +95,8 @@ async def process_issuer(session, issuer, last_date):
 
         # Gather all data frames from the concurrent fetches
         data_frames = await asyncio.gather(*tasks)
-        #print(f"{issuer} finished")
+
+        print(f"{issuer} finished")
         return pd.concat(data_frames, ignore_index=True) if data_frames else pd.DataFrame()
 
 # It helps each issuer to be processed concurrently
@@ -112,7 +113,7 @@ async def main():
     initialize_database()
 
     async with aiohttp.ClientSession() as session:
-        conn = sqlite3.connect("stock_datap1.db")
+        conn = sqlite3.connect("stock_data.db")
         issuer_codes = await get_issuer_codes(session)
         last_dates = get_last_available_dates(conn, issuer_codes)
         conn.close()
@@ -127,8 +128,8 @@ async def main():
         # Combine all data frames into one and write to the database
         combined_data = pd.concat(results, ignore_index=True)
         if not combined_data.empty:
-            conn = sqlite3.connect("stock_datap1.db")
-            combined_data.to_sql("stock_datap1", conn, if_exists="append", index=False)
+            conn = sqlite3.connect("stock_data.db")
+            combined_data.to_sql("stock_data", conn, if_exists="append", index=False)
             conn.close()
 
     end_time = time.time()
@@ -167,7 +168,7 @@ async def fetch(session, url, retries=5, backoff_factor=0.5, timeout=20):
 
     while attempt < retries:
         try:
-            async with session.get(url, timeout=timeout, headers=HEADERS) as response:
+            async with session.get(url, timeout=timeout, headers=HEADERS, ssl=False) as response:
 
                 if response.status == 200:
                     return await response.text()
@@ -183,16 +184,13 @@ async def fetch(session, url, retries=5, backoff_factor=0.5, timeout=20):
             attempt += 1
             if attempt >= retries:
                 time.sleep(2)
-                raise  # Re-raise the error after the final attempt
+                raise
 
-            # Wait before retrying (exponential backoff)
-            delay = backoff_factor * (2 ** attempt)  + random.uniform(0.001, 0.01) # Exponential backoff
-            #print(f"Attempt {attempt} failed:. Retrying in {delay:.1f} seconds...")
 
-            await asyncio.sleep(delay)  # Async sleep before retrying
+            delay = backoff_factor * (2 ** attempt)  + random.uniform(0.001, 0.01)
+            await asyncio.sleep(delay)
 
 
 
 if __name__ == "__main__":
     asyncio.run(main())
-

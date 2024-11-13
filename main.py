@@ -1,37 +1,38 @@
+import asyncio
+import random
+import time
+import aiohttp
 import pandas as pd
-import requests
 import sqlite3
 import datetime
-import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from io import StringIO
 from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
 
-# Define the base URL
-BASE_URL = "https://www.mse.mk/en/stats/symbolhistory"
+BASE_URL_DATA = "https://www.mse.mk/en/stats/symbolhistory"
+BASE_URL_ISSUERS = "https://www.mse.mk/en/stats/current-schedule"
 
-# Initialize fake user agent
 ua = UserAgent()
 HEADERS = {'User-Agent': ua.random}
 
+#Set values based on the internet speed, PC performance
+semaphore1 = asyncio.Semaphore(5) # Number of concurrent issuers to be processed
+semaphore2 = asyncio.Semaphore(10) # Numbers of concurrent request to be sent
 
 def initialize_database():
-    conn = sqlite3.connect("stock_dataF8.db")
+    conn = sqlite3.connect("stock_datap1.db")
     conn.execute('''
-        CREATE TABLE IF NOT EXISTS stock_dataF8 (
+        CREATE TABLE IF NOT EXISTS stock_datap1 (
             issuer TEXT,
             date TEXT,
-            last_trade_price TEXT,
-            max TEXT,
-            min TEXT,
-            avg_price TEXT,
+            last_trade_price REAL,
+            max REAL,
+            min REAL,
+            avg_price REAL,
             percent_change REAL,
-            volume TEXT,
-            turnover_best TEXT,
-            total_turnover TEXT,
+            volume REAL,
+            turnover_best REAL,
+            total_turnover REAL,
             PRIMARY KEY (issuer, date)
         )
     ''')
@@ -39,145 +40,159 @@ def initialize_database():
     conn.close()
 
 
-def create_session():
-    session = requests.Session()
-    retries = Retry(total=5, backoff_factor=0.5, status_forcelist=[429, 500, 502, 503, 504])
-    session.mount('https://', HTTPAdapter(max_retries=retries))
-    return session
+#Filter 1
+async def get_issuer_codes(session):
+    response_text = await fetch(session, f"{BASE_URL_ISSUERS}")
+    soup = BeautifulSoup(response_text, "html.parser")
+    codes = [td.get_text(strip=True) for td in soup.find_all("td") if td.a and 'href' in td.a.attrs and td.get_text(strip=True) and td.get_text(strip=True).isalpha()]
+    return codes
 
-
-# Filter 1
-def get_issuer_codes():
-    session = create_session()
-    response = session.get(f"{BASE_URL}/ADIN", headers=HEADERS)
-    soup = BeautifulSoup(response.text, "html.parser")
-    codes = soup.select_one("#Code").select("option")
-    return [code.text for code in codes if
-            code.text and code.text.isalpha() and not (code.text.startswith("EU") or code.text.startswith("EV"))]
-
-
-# Filter 2 - Specific for date format dd.mm.yyyy, the requirement was to save the data in database in that format.
-# def get_last_available_date(conn, issuer):
-#     cur = conn.cursor()
-#     cur.execute("SELECT date FROM stock_dataF8 WHERE issuer = ?", (issuer,))
-#     all_dates = [datetime.datetime.strptime(row[0], '%d.%m.%Y') for row in cur.fetchall() if row[0]]
-# 
-#     if all_dates:
-#         max_date = max(all_dates) + datetime.timedelta(days=1)
-#         return format_date_MSE(max_date)
-#     else:
-#         return format_date_MSE(datetime.datetime.now() - datetime.timedelta(days=3650))
-
-
-# Filter 2 - Much faster, works only with YYYY-mm-dd date format
+#Filter 2
 def get_last_available_date(conn, issuer):
-   cur = conn.cursor()
-   cur.execute("SELECT MAX(date) FROM stock_dataF8 WHERE issuer = ?", (issuer,))
-   result = cur.fetchone()[0]
+    cur = conn.cursor()
+    cur.execute("SELECT MAX(date) FROM stock_datap1 WHERE issuer = ?", (issuer,))
+    result = cur.fetchone()[0]
+    if result:
+        return (datetime.datetime.strptime(result, "%Y-%m-%d") + datetime.timedelta(days=1)).strftime("%m/%d/%Y")
+    else:
+        return (datetime.datetime.now() - datetime.timedelta(days=3650)).strftime("%m/%d/%Y")
 
-   if result:
-       return datetime.datetime.strptime(result, '%Y-%m-%d') + datetime.timedelta(days=1)
-   else:
-       return datetime.datetime.now() - datetime.timedelta(days=3650)
+#Filter 3
+async def fetch_issuer_data(session, issuer, start_date, end_date):
+    async with semaphore2:
+        url = f"{BASE_URL_DATA}/{issuer}?FromDate={format_date_MSE(start_date)}&ToDate={format_date_MSE(end_date)}"
 
-# Format used in the MSE website
-def format_date_MSE(date):
-    return date.strftime("%m/%d/%Y")
-
-
-def format_date_rules(date):
-    return date.strftime('%d.%m.%Y')
-
-def format_date_database(date):
-    return date.strftime('%Y-%m-%d')
-
-
-# Convert from 1,005.00 to 1.005,00
-# Use it when saving data to database and when converting to numbers (pandas can convert only 1,005.00)
-def switch_delimiters(value):
-    if pd.isna(value):
-        return value
-
-    value = str(value)
-    value = value.replace(',', '_')
-    value = value.replace('.', ',')
-    value = value.replace('_', '.')
-    return value
-
-
-# Filter 3
-def fetch_issuer_data(issuer, start_date):
-    session = create_session()
-    current_date = start_date
-    end_date = datetime.datetime.now()
-    data_frames = []
-
-    while current_date <= end_date:
-        next_date = min(current_date + datetime.timedelta(days=365), end_date)
-        url = f"{BASE_URL}/{issuer}?FromDate={format_date_MSE(current_date)}&ToDate={format_date_MSE(next_date)}"
-        response = session.get(url, headers=HEADERS)
-
+        response_text = await fetch(session, url)
         try:
-            tables = pd.read_html(StringIO(response.text))
+            tables = pd.read_html(StringIO(response_text), flavor="lxml")
             df = tables[0]
             df['issuer'] = issuer
             df.columns = [
                 'date', 'last_trade_price', 'max', 'min', 'avg_price',
                 'percent_change', 'volume', 'turnover_best', 'total_turnover', 'issuer'
             ]
-            df['date'] = pd.to_datetime(df['date'], format='%m/%d/%Y').apply(format_date_database)  # Macedonian format for date
 
             df = df.dropna(subset=['max', 'min'])
 
+            if not df.empty:
+                df.loc[:, 'date'] = pd.to_datetime(df['date'], format='%m/%d/%Y').dt.strftime('%Y-%m-%d')
 
-            # columns_to_edit = ['last_trade_price', 'max', 'min', 'avg_price', 'volume', 'turnover_best',
-            #                    'total_turnover']
-
-            # Note: The requirement was to convert the numbers into Macedonian format (e.g. 21.005,00)
-            # In order to do calculations with this data, the data must be returned back to numeric
-            # for column in columns_to_edit:
-            #     df[column] = df[column].apply(lambda x: "{:,.2f}".format(float(x)) if pd.notna(x) else x)
-            #     df[column] = df[column].apply(switch_delimiters)
-
-            data_frames.append(df)
+            return df
         except ValueError:
-            pass
+            return pd.DataFrame()
 
-        current_date = next_date + datetime.timedelta(days=1)
+# It makes Filter 3 to work concurrently
+async def process_issuer(session, issuer, last_date):
+    async with semaphore1:
+        current_date = datetime.datetime.strptime(last_date, "%m/%d/%Y")
+        end_date = datetime.datetime.now()
 
-    print(f"{issuer} finished")
-    return pd.concat(data_frames, ignore_index=True) if data_frames else pd.DataFrame()
+        tasks = []
+        while current_date <= end_date:
+            next_date = min(current_date + datetime.timedelta(days=365), end_date)
+            tasks.append(asyncio.create_task(fetch_issuer_data(session, issuer, current_date, next_date)))
+            current_date = next_date + datetime.timedelta(days=1)
 
+        # Gather all data frames from the concurrent fetches
+        data_frames = await asyncio.gather(*tasks)
+        #print(f"{issuer} finished")
+        return pd.concat(data_frames, ignore_index=True) if data_frames else pd.DataFrame()
 
-def process_issuer(issuer):
-    conn = sqlite3.connect("stock_dataF8.db")
-    try:
+# It helps each issuer to be processed concurrently
+def get_last_available_dates(conn, issuers):
+    last_dates = {}
+    for issuer in issuers:
         last_date = get_last_available_date(conn, issuer)
-        new_data = fetch_issuer_data(issuer, last_date)
-        if not new_data.empty:
-            new_data.to_sql("stock_dataF8", conn, if_exists="append", index=False)
-        # return f"Processed {issuer}: {len(new_data)} records fetched"
-    finally:
-        conn.close()
+        last_dates[issuer] = last_date
+    return last_dates
 
-
-def main():
+async def main():
     start_time = time.time()
 
     initialize_database()
-    issuer_codes = get_issuer_codes()
 
-    # print(f"Retrieved issuer codes: {issuer_codes}")
-    # print(len(issuer_codes))
+    async with aiohttp.ClientSession() as session:
+        conn = sqlite3.connect("stock_datap1.db")
+        issuer_codes = await get_issuer_codes(session)
+        last_dates = get_last_available_dates(conn, issuer_codes)
+        conn.close()
 
-    with ThreadPoolExecutor() as executor:
-        futures = [executor.submit(process_issuer, issuer) for issuer in issuer_codes]
-        for future in as_completed(futures):
-            future.result()
+        # Process each issuer's data asynchronously (concurrently)
+        tasks = [
+            process_issuer(session, issuer, last_dates[issuer])
+            for issuer in issuer_codes
+        ]
+        results = await asyncio.gather(*tasks)
+
+        # Combine all data frames into one and write to the database
+        combined_data = pd.concat(results, ignore_index=True)
+        if not combined_data.empty:
+            conn = sqlite3.connect("stock_datap1.db")
+            combined_data.to_sql("stock_datap1", conn, if_exists="append", index=False)
+            conn.close()
 
     end_time = time.time()
     print(f"Data population completed in {end_time - start_time:.2f} seconds.")
 
+def format_date_MSE(date):
+    return date.strftime("%m/%d/%Y")
+
+def format_date_display(date):
+    return date.strftime("%d.%m.%Y")
+
+def switch_delimiters(value):
+    if pd.isna(value):
+        return value
+    value = str(value).replace(',', '_').replace('.', ',').replace('_', '.')
+    return value
+
+# Convert the data in the Macedonian numeric format, used only for display since it affects the performance if it is kept in database
+def convert_data_for_display(df):
+    df['date'] = pd.to_datetime(df['date'], format='%Y-%m-%d').apply(format_date_display)
+
+    columns_to_edit = ['last_trade_price', 'max', 'min', 'avg_price', 'volume', 'turnover_best',
+                       'total_turnover']
+
+    for column in columns_to_edit:
+        df[column] = df[column].apply(lambda x: "{:,.2f}".format(float(x)) if pd.notna(x) else x)
+        df[column] = df[column].apply(switch_delimiters)
+
+# async def fetch(session, url):
+#     async with session.get(url, headers=HEADERS) as response:
+#         return await response.text()
+
+async def fetch(session, url, retries=5, backoff_factor=0.5, timeout=20):
+    """Fetch URL with retry mechanism."""
+    attempt = 0
+
+    while attempt < retries:
+        try:
+            async with session.get(url, timeout=timeout, headers=HEADERS) as response:
+
+                if response.status == 200:
+                    return await response.text()
+                else:
+                    print(response.status)
+                    raise aiohttp.ClientResponseError(
+                        status=response.status,
+                        message=f"Received status {response.status} from server",
+                        request_info=f"Request to {url} failed",
+                        history=()
+                    )
+        except (aiohttp.ClientError, asyncio.TimeoutError) as e:
+            attempt += 1
+            if attempt >= retries:
+                time.sleep(2)
+                raise  # Re-raise the error after the final attempt
+
+            # Wait before retrying (exponential backoff)
+            delay = backoff_factor * (2 ** attempt)  + random.uniform(0.001, 0.01) # Exponential backoff
+            #print(f"Attempt {attempt} failed:. Retrying in {delay:.1f} seconds...")
+
+            await asyncio.sleep(delay)  # Async sleep before retrying
+
+
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
+

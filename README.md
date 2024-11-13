@@ -1,5 +1,5 @@
-Group: 221512 and 221534
+Group Members:
+Endrit Hasani - 221534
+Drilon Mehmedi - 221512
 
-NOTE: The database is already populated up to 9/11/2024. To test the speed you need to delete the database file, afterwards the program will create it again and populate it.
-
-ET ~ 120seconds
+NOTE: The database is already populated. To test the speed, you need to delete the database file. Afterward, the program will create it again and populate it.

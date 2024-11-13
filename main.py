@@ -17,10 +17,11 @@ BASE_URL = "https://www.mse.mk/en/stats/symbolhistory"
 ua = UserAgent()
 HEADERS = {'User-Agent': ua.random}
 
+
 def initialize_database():
-    conn = sqlite3.connect("stock_data.db")
+    conn = sqlite3.connect("stock_dataF8.db")
     conn.execute('''
-        CREATE TABLE IF NOT EXISTS stock_data (
+        CREATE TABLE IF NOT EXISTS stock_dataF8 (
             issuer TEXT,
             date TEXT,
             last_trade_price TEXT,
@@ -37,49 +38,59 @@ def initialize_database():
     conn.commit()
     conn.close()
 
+
 def create_session():
     session = requests.Session()
     retries = Retry(total=5, backoff_factor=0.5, status_forcelist=[429, 500, 502, 503, 504])
     session.mount('https://', HTTPAdapter(max_retries=retries))
     return session
 
-#Filter 1
+
+# Filter 1
 def get_issuer_codes():
     session = create_session()
     response = session.get(f"{BASE_URL}/ADIN", headers=HEADERS)
     soup = BeautifulSoup(response.text, "html.parser")
     codes = soup.select_one("#Code").select("option")
-    return [code.text for code in codes if code.text and code.text.isalpha() and not (code.text.startswith("EU") or code.text.startswith("EV"))]
+    return [code.text for code in codes if
+            code.text and code.text.isalpha() and not (code.text.startswith("EU") or code.text.startswith("EV"))]
 
-#Filter 2 - Specific for date format dd.mm.yyyy, the requirement was to save the data in database in that format.
+
+# Filter 2 - Specific for date format dd.mm.yyyy, the requirement was to save the data in database in that format.
+# def get_last_available_date(conn, issuer):
+#     cur = conn.cursor()
+#     cur.execute("SELECT date FROM stock_dataF8 WHERE issuer = ?", (issuer,))
+#     all_dates = [datetime.datetime.strptime(row[0], '%d.%m.%Y') for row in cur.fetchall() if row[0]]
+# 
+#     if all_dates:
+#         max_date = max(all_dates) + datetime.timedelta(days=1)
+#         return format_date_MSE(max_date)
+#     else:
+#         return format_date_MSE(datetime.datetime.now() - datetime.timedelta(days=3650))
+
+
+# Filter 2 - Much faster, works only with YYYY-mm-dd date format
 def get_last_available_date(conn, issuer):
-    cur = conn.cursor()
-    cur.execute("SELECT date FROM stock_data WHERE issuer = ?", (issuer,))
-    all_dates = [datetime.datetime.strptime(row[0], '%d.%m.%Y') for row in cur.fetchall() if row[0]]
+   cur = conn.cursor()
+   cur.execute("SELECT MAX(date) FROM stock_dataF8 WHERE issuer = ?", (issuer,))
+   result = cur.fetchone()[0]
 
-    if all_dates:
-        max_date = max(all_dates) + datetime.timedelta(days=1)
-        return format_date_MSE(max_date)
-    else:
-        return format_date_MSE(datetime.datetime.now() - datetime.timedelta(days=3650))
+   if result:
+       return datetime.datetime.strptime(result, '%Y-%m-%d') + datetime.timedelta(days=1)
+   else:
+       return datetime.datetime.now() - datetime.timedelta(days=3650)
 
-#Filter 2 - Much faster, works only with YYYY-mm-dd date format
-#def get_last_available_date(conn, issuer):
-#    cur = conn.cursor()
-#    cur.execute("SELECT MAX(date) FROM stock_data WHERE issuer = ?", (issuer,))
-#    result = cur.fetchone()[0]
-#    print(result)
-#    if result:
-#        return format_date_MSE((datetime.datetime.strptime(result, '%d.%m.%Y') + datetime.timedelta(days=1)))
-#    else:
-#        return format_date_MSE((datetime.datetime.now() - datetime.timedelta(days=3650)))
-
-#Format used in the MSE website
+# Format used in the MSE website
 def format_date_MSE(date):
     return date.strftime("%m/%d/%Y")
 
-def format_date_database(date):
+
+def format_date_rules(date):
     return date.strftime('%d.%m.%Y')
+
+def format_date_database(date):
+    return date.strftime('%Y-%m-%d')
+
 
 # Convert from 1,005.00 to 1.005,00
 # Use it when saving data to database and when converting to numbers (pandas can convert only 1,005.00)
@@ -88,15 +99,16 @@ def switch_delimiters(value):
         return value
 
     value = str(value)
-    value = value.replace(',','_')
-    value = value.replace('.',',')
-    value = value.replace('_','.')
+    value = value.replace(',', '_')
+    value = value.replace('.', ',')
+    value = value.replace('_', '.')
     return value
 
-#Filter 3
+
+# Filter 3
 def fetch_issuer_data(issuer, start_date):
     session = create_session()
-    current_date = datetime.datetime.strptime(start_date, "%m/%d/%Y")
+    current_date = start_date
     end_date = datetime.datetime.now()
     data_frames = []
 
@@ -113,16 +125,19 @@ def fetch_issuer_data(issuer, start_date):
                 'date', 'last_trade_price', 'max', 'min', 'avg_price',
                 'percent_change', 'volume', 'turnover_best', 'total_turnover', 'issuer'
             ]
+            df['date'] = pd.to_datetime(df['date'], format='%m/%d/%Y').apply(format_date_database)  # Macedonian format for date
 
-            df['date'] = pd.to_datetime(df['date'], format='%m/%d/%Y').apply(format_date_database) # Macedonian format for date
+            df = df.dropna(subset=['max', 'min'])
 
-            columns_to_edit = ['last_trade_price', 'max', 'min', 'avg_price', 'volume', 'turnover_best', 'total_turnover']
 
-            #Note: The requirement was to convert the numbers into Macedonian format (e.g. 21.005,00)
-            #In order to do calculations with this data, the data must be returned back to numeric
-            for column in columns_to_edit:
-                df[column] = df[column].apply(lambda x: "{:,.2f}".format(float(x)) if pd.notna(x) else x)
-                df[column] = df[column].apply(switch_delimiters)
+            # columns_to_edit = ['last_trade_price', 'max', 'min', 'avg_price', 'volume', 'turnover_best',
+            #                    'total_turnover']
+
+            # Note: The requirement was to convert the numbers into Macedonian format (e.g. 21.005,00)
+            # In order to do calculations with this data, the data must be returned back to numeric
+            # for column in columns_to_edit:
+            #     df[column] = df[column].apply(lambda x: "{:,.2f}".format(float(x)) if pd.notna(x) else x)
+            #     df[column] = df[column].apply(switch_delimiters)
 
             data_frames.append(df)
         except ValueError:
@@ -130,27 +145,30 @@ def fetch_issuer_data(issuer, start_date):
 
         current_date = next_date + datetime.timedelta(days=1)
 
+    print(f"{issuer} finished")
     return pd.concat(data_frames, ignore_index=True) if data_frames else pd.DataFrame()
 
+
 def process_issuer(issuer):
-    conn = sqlite3.connect("stock_data.db")
+    conn = sqlite3.connect("stock_dataF8.db")
     try:
         last_date = get_last_available_date(conn, issuer)
         new_data = fetch_issuer_data(issuer, last_date)
         if not new_data.empty:
-           new_data.to_sql("stock_data", conn, if_exists="append", index=False)
-        #return f"Processed {issuer}: {len(new_data)} records fetched"
+            new_data.to_sql("stock_dataF8", conn, if_exists="append", index=False)
+        # return f"Processed {issuer}: {len(new_data)} records fetched"
     finally:
         conn.close()
+
 
 def main():
     start_time = time.time()
 
     initialize_database()
     issuer_codes = get_issuer_codes()
-    
-    #print(f"Retrieved issuer codes: {issuer_codes}")
-    #print(len(issuer_codes))
+
+    # print(f"Retrieved issuer codes: {issuer_codes}")
+    # print(len(issuer_codes))
 
     with ThreadPoolExecutor() as executor:
         futures = [executor.submit(process_issuer, issuer) for issuer in issuer_codes]
@@ -159,6 +177,7 @@ def main():
 
     end_time = time.time()
     print(f"Data population completed in {end_time - start_time:.2f} seconds.")
+
 
 if __name__ == "__main__":
     main()

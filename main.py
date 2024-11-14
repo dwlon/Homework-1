@@ -15,7 +15,6 @@ BASE_URL_ISSUERS = "https://www.mse.mk/en/stats/current-schedule"
 ua = UserAgent()
 HEADERS = {'User-Agent': ua.random}
 
-#Set values based on the internet speed, PC performance
 semaphore1 = asyncio.Semaphore(10) # Number of concurrent issuers to be processed
 semaphore2 = asyncio.Semaphore(20) # Numbers of concurrent request to be sent
 
@@ -81,7 +80,7 @@ async def fetch_issuer_data(session, issuer, start_date, end_date):
         except ValueError:
             return pd.DataFrame()
 
-# It makes Filter 3 to work concurrently
+
 async def process_issuer(session, issuer, last_date):
     async with semaphore1:
         current_date = datetime.datetime.strptime(last_date, "%m/%d/%Y")
@@ -93,13 +92,12 @@ async def process_issuer(session, issuer, last_date):
             tasks.append(asyncio.create_task(fetch_issuer_data(session, issuer, current_date, next_date)))
             current_date = next_date + datetime.timedelta(days=1)
 
-        # Gather all data frames from the concurrent fetches
         data_frames = await asyncio.gather(*tasks)
 
-        print(f"{issuer} finished")
+        # print(f"{issuer} finished")
         return pd.concat(data_frames, ignore_index=True) if data_frames else pd.DataFrame()
 
-# It helps each issuer to be processed concurrently
+
 def get_last_available_dates(conn, issuers):
     last_dates = {}
     for issuer in issuers:
@@ -118,14 +116,12 @@ async def main():
         last_dates = get_last_available_dates(conn, issuer_codes)
         conn.close()
 
-        # Process each issuer's data asynchronously (concurrently)
         tasks = [
             process_issuer(session, issuer, last_dates[issuer])
             for issuer in issuer_codes
         ]
         results = await asyncio.gather(*tasks)
 
-        # Combine all data frames into one and write to the database
         combined_data = pd.concat(results, ignore_index=True)
         if not combined_data.empty:
             conn = sqlite3.connect("stock_data.db")
@@ -147,7 +143,7 @@ def switch_delimiters(value):
     value = str(value).replace(',', '_').replace('.', ',').replace('_', '.')
     return value
 
-# Convert the data in the Macedonian numeric format, used only for display since it affects the performance if it is kept in database
+
 def convert_data_for_display(df):
     df['date'] = pd.to_datetime(df['date'], format='%Y-%m-%d').apply(format_date_display)
 
@@ -163,7 +159,6 @@ def convert_data_for_display(df):
 #         return await response.text()
 
 async def fetch(session, url, retries=5, backoff_factor=0.5, timeout=20):
-    """Fetch URL with retry mechanism."""
     attempt = 0
 
     while attempt < retries:
@@ -189,8 +184,6 @@ async def fetch(session, url, retries=5, backoff_factor=0.5, timeout=20):
 
             delay = backoff_factor * (2 ** attempt)  + random.uniform(0.001, 0.01)
             await asyncio.sleep(delay)
-
-
 
 if __name__ == "__main__":
     asyncio.run(main())

@@ -1,2 +1,2 @@
-# Run React using 'nmp start' in the console because webstorm/vscode are incorrectly interpreting
+# Run React using 'npm start' in the console because webstorm/vscode are incorrectly interpreting
 

@@ -1,6 +1,6 @@
 package com.stockmarketapp.controller;
 
-import com.stockmarketapp.entities.Index;
+import com.stockmarketapp.dto.IndexDto;
 import com.stockmarketapp.service.IndexService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +24,9 @@ public class IndexController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<Index>> getAll() {
-        return new ResponseEntity<>(indexService.findAll(), HttpStatus.OK);
+    public ResponseEntity<List<IndexDto>> getAll() {
+        List<IndexDto> dtoData = indexService.findAll();
+
+        return new ResponseEntity<>(dtoData, HttpStatus.OK);
     }
 }

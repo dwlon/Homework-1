@@ -1,9 +1,10 @@
 package com.stockmarketapp.service;
 
-import com.stockmarketapp.entities.Index;
+import com.stockmarketapp.dto.IndexDto;
 
 import java.util.List;
 
 public interface IndexService {
-    public List<Index> findAll();
+    List<IndexDto> findAll();
+
 }

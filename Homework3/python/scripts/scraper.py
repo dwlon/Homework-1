@@ -8,6 +8,7 @@ import datetime
 from io import StringIO
 from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
+import os
 
 BASE_URL_DATA = "https://www.mse.mk/en/stats/symbolhistory"
 BASE_URL_ISSUERS = "https://www.mse.mk/en/stats/current-schedule"
@@ -15,29 +16,36 @@ BASE_URL_ISSUERS = "https://www.mse.mk/en/stats/current-schedule"
 ua = UserAgent()
 HEADERS = {'User-Agent': ua.random}
 
-semaphore1 = asyncio.Semaphore(10) # Number of concurrent issuers to be processed
-semaphore2 = asyncio.Semaphore(20) # Numbers of concurrent request to be sent
+semaphore1 = asyncio.Semaphore(10)
+semaphore2 = asyncio.Semaphore(20)
 
 def initialize_database():
-    conn = sqlite3.connect("stock_data.db")
+    db_folder = os.path.join(os.path.dirname(__file__), "..", "..", "database")
+    os.makedirs(db_folder, exist_ok=True)
+    db_path = os.path.join(db_folder, "stock_data.db")
+
+    conn = sqlite3.connect(db_path)
     conn.execute('''
-        CREATE TABLE IF NOT EXISTS stock_data (
-            issuer TEXT,
-            date TEXT,
-            last_trade_price REAL,
-            max REAL,
-            min REAL,
-            avg_price REAL,
-            percent_change REAL,
-            volume REAL,
-            turnover_best REAL,
-            total_turnover REAL,
-            PRIMARY KEY (issuer, date)
-        )
-    ''')
+            CREATE TABLE IF NOT EXISTS stock_data (
+                issuer TEXT,
+                date TEXT,
+                last_trade_price REAL,
+                max REAL,
+                min REAL,
+                avg_price REAL,
+                percent_change REAL,
+                volume REAL,
+                turnover_best REAL,
+                total_turnover REAL,
+                PRIMARY KEY (issuer, date)
+            )
+        ''')
     conn.commit()
     conn.close()
 
+def get_db_path():
+    db_folder = os.path.join(os.path.dirname(__file__), "..", "..", "database")
+    return os.path.join(db_folder, "stock_data.db")
 
 #Filter 1
 async def get_issuer_codes(session):
@@ -111,7 +119,7 @@ async def main():
     initialize_database()
 
     async with aiohttp.ClientSession() as session:
-        conn = sqlite3.connect("stock_data.db")
+        conn = sqlite3.connect(get_db_path())
         issuer_codes = await get_issuer_codes(session)
         last_dates = get_last_available_dates(conn, issuer_codes)
         conn.close()
@@ -124,7 +132,7 @@ async def main():
 
         combined_data = pd.concat(results, ignore_index=True)
         if not combined_data.empty:
-            conn = sqlite3.connect("stock_data.db")
+            conn = sqlite3.connect(get_db_path())
             combined_data.to_sql("stock_data", conn, if_exists="append", index=False)
             conn.close()
 

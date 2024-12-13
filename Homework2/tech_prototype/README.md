@@ -1,2 +1,2 @@
-# Run React using 'npm start' in the console because webstorm/vscode are incorrectly interpreting
+## Run React using 'npm install' then 'npm start' in the console
 

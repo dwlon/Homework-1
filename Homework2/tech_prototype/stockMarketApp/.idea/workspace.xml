@@ -5,29 +5,47 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7e7d6128-3cee-44e1-9d8a-bcc5c5e52231" name="Changes" comment="Display data in Macedonian Format">
-      <change beforePath="$PROJECT_DIR$/../react-stock-app/node_modules/.cache/default-development/0.pack" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../react-stock-app/node_modules/.cache/default-development/index.pack" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../Homework3/backend/.mvn/wrapper/maven-wrapper.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../Homework3/backend/HELP.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../Homework3/backend/mvnw" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../Homework3/backend/mvnw.cmd" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../Homework3/backend/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../Homework3/backend/src/main/java/com/stockmarketapp/StockMarketAppApplication.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../Homework3/backend/src/main/java/com/stockmarketapp/config/DatasourceConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../Homework3/backend/src/main/java/com/stockmarketapp/controller/IndexController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../Homework3/backend/src/main/java/com/stockmarketapp/dialect/SQLiteDialect.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../Homework3/backend/src/main/java/com/stockmarketapp/dto/IndexDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../Homework3/backend/src/main/java/com/stockmarketapp/entities/Index.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../Homework3/backend/src/main/java/com/stockmarketapp/entities/IndexKey.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../Homework3/backend/src/main/java/com/stockmarketapp/repository/IndexRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../Homework3/backend/src/main/java/com/stockmarketapp/service/IndexService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../Homework3/backend/src/main/java/com/stockmarketapp/service/impl/IndexServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../Homework3/backend/src/main/resources/application.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../Homework3/backend/src/test/java/com/stockmarketapp/StockMarketAppApplicationTests.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../Homework3/backend/stock_data.db" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../Homework3/database/stock_data.db" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../Homework3/python/scrapper.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/package-lock.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/package.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/public/favicon.ico" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/public/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/public/logo192.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/public/logo512.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/public/manifest.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/public/robots.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/src/App.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/src/App.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/src/App.test.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/src/Home.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/src/Home.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/src/List.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/src/List.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/src/index.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/src/index.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/src/logo.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/src/reportWebVitals.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/src/setupTests.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Homework3/frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Homework3/frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/public/favicon.ico" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Homework3/frontend/public/favicon.ico" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/public/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Homework3/frontend/public/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/public/logo192.png" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Homework3/frontend/public/logo192.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/public/logo512.png" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Homework3/frontend/public/logo512.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/public/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Homework3/frontend/public/manifest.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/public/robots.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Homework3/frontend/public/robots.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/src/App.css" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Homework3/frontend/src/App.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Homework3/frontend/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/src/App.test.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Homework3/frontend/src/App.test.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/src/Home.css" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Homework3/frontend/src/Home.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/src/Home.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Homework3/frontend/src/Home.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/src/List.css" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Homework3/frontend/src/List.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/src/List.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Homework3/frontend/src/List.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Homework3/frontend/src/index.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/src/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Homework3/frontend/src/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/src/logo.svg" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Homework3/frontend/src/logo.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/src/reportWebVitals.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Homework3/frontend/src/reportWebVitals.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Homework3/react-stock-app/src/setupTests.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Homework3/frontend/src/setupTests.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -76,7 +94,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
     "git-widget-placeholder": "HW3__base__part",
-    "last_opened_file_path": "C:/Users/EndritHasani/Faculty/Homework-1/Homework2/tech_prototype/stockMarketApp/pom.xml",
+    "last_opened_file_path": "C:/Users/EndritHasani/Faculty/Homework-1/Homework3/backend/pom.xml",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -111,7 +129,7 @@
       <workItem from="1733238373348" duration="41000" />
       <workItem from="1733312040465" duration="1926000" />
       <workItem from="1733338476413" duration="2617000" />
-      <workItem from="1734023582654" duration="869000" />
+      <workItem from="1734023582654" duration="904000" />
     </task>
     <servers />
   </component>

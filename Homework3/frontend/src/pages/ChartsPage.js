@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import Header from '../components/Header/Header';
+import { Box, Typography } from '@mui/material';
 import ChartsFilter from '../components/ChartsFilter/ChartsFilter';
 import ChartComponent from '../components/ChartComponents/ChartComponent';
 import HistoricalTable from '../components/HistoricalTable/HistoricalTable';
-import Footer from '../components/Footer/Footer';
 
 import { fetchChartData } from '../services/api';
 
@@ -13,13 +12,12 @@ const ChartsPage = () => {
     const fromDateDefault = new Date(today);
     fromDateDefault.setDate(fromDateDefault.getDate() - 30);
 
-    const [fromDate, setFromDate] = useState(fromDateDefault.toISOString().slice(0,10));
-    const [toDate, setToDate] = useState(today.toISOString().slice(0,10));
+    const [fromDate, setFromDate] = useState(fromDateDefault.toISOString().slice(0, 10));
+    const [toDate, setToDate] = useState(today.toISOString().slice(0, 10));
     const [symbol, setSymbol] = useState("ALKALOID");
     const [chartData, setChartData] = useState([]);
-    const [chartType, setChartType] = useState('line'); // 'line' or 'candlestick'
+    const [chartType, setChartType] = useState('line'); // 'line', 'candlestick', 'area'
 
-    // Fetch data based on current filter
     useEffect(() => {
         fetchData();
     }, [fromDate, toDate, symbol]);
@@ -35,29 +33,64 @@ const ChartsPage = () => {
         setSymbol(sym);
     };
 
+    const handleRangeChange = (range) => {
+        // Adjust fromDate/toDate based on the selected range
+        const newToDate = new Date();
+        let newFromDate = new Date();
+        switch (range) {
+            case '1W':
+                newFromDate.setDate(newToDate.getDate() - 7);
+                break;
+            case '1M':
+                newFromDate.setMonth(newToDate.getMonth() - 1);
+                break;
+            case '1Y':
+                newFromDate.setFullYear(newToDate.getFullYear() - 1);
+                break;
+            case '10Y':
+                newFromDate.setFullYear(newToDate.getFullYear() - 10);
+                break;
+            default:
+                break;
+        }
+        setFromDate(newFromDate.toISOString().slice(0, 10));
+        setToDate(newToDate.toISOString().slice(0, 10));
+    };
+
     return (
-        <div className="charts-page">
-            <Header />
-            <div className="charts-container" style={{ padding: '20px' }}>
-                <ChartsFilter
-                    fromDate={fromDate}
-                    toDate={toDate}
-                    symbol={symbol}
-                    onFilter={handleFilter}
-                />
+        <Box className="charts-page" sx={{display: 'flex', justifyContent: "center", alignContent: 'center'}}>
+            <Box sx={{display: 'flex', justifyContent: "center", alignContent: 'center', width: "80vw"}}>
 
-                <div className="chart-section" style={{ marginTop: '40px' }}>
-                    <h2>{symbol}</h2>
-                    <ChartComponent data={chartData} chartType={chartType} onChartTypeChange={setChartType} />
-                </div>
+                <Box className="charts-container" sx={{ p: 3 }}>
+                    <ChartsFilter
+                        fromDate={fromDate}
+                        toDate={toDate}
+                        symbol={symbol}
+                        onFilter={handleFilter}
+                    />
 
-                <div className="historical-table-section" style={{ marginTop: '40px' }}>
-                    <h3>Historical Data</h3>
-                    <HistoricalTable data={chartData} />
-                </div>
-            </div>
-            <Footer />
-        </div>
+                    <Box className="chart-section" sx={{ mt: 5 }}>
+                        <Typography variant="h5" component="h2" gutterBottom>
+                            {symbol}
+                        </Typography>
+                        <ChartComponent
+                            data={chartData}
+                            chartType={chartType}
+                            onChartTypeChange={setChartType}
+                            onRangeChange={handleRangeChange}
+                        />
+                    </Box>
+
+                    <Box className="historical-table-section" sx={{ mt: 5 }}>
+                        <Typography variant="h6" component="h3" gutterBottom>
+                            Historical Data
+                        </Typography>
+                        <HistoricalTable data={chartData} />
+                    </Box>
+                </Box>
+
+            </Box>
+        </Box>
     );
 };
 

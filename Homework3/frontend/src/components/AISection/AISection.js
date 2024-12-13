@@ -1,6 +1,7 @@
+// AISection.js
 import React from 'react';
+import {Box, Typography, Stack, Paper, Divider, Grid} from '@mui/material';
 import PredictionsCard from './PredictionsCard';
-import './AISection.css';
 
 const AISection = () => {
     const predictionsData = [
@@ -11,14 +12,56 @@ const AISection = () => {
     ];
 
     return (
-        <section className="ai-section">
-            <h2>AI Predictions</h2>
-            <div className="predictions-container">
-                {predictionsData.map((pd, index) => (
-                    <PredictionsCard key={index} data={pd} />
-                ))}
-            </div>
-        </section>
+        <Box sx={{ p: 4, textAlign: 'center', display: 'flex',
+            justifyContent: 'center', // Centers the Paper horizontally
+            alignItems: 'center', // Centers the Paper vertically
+            marginTop: '-100px',
+
+        }}>
+            <Paper
+                elevation={8} // Adjust elevation as needed for shadow effect
+                sx={{
+                    width: "fit-content",
+                    borderRadius: 4,
+                    padding: 5
+
+                }}
+            >
+                <Grid container>
+                    <Typography
+                        variant="p"
+                        gutterBottom
+                        align = "left"
+                        sx={{
+                            color: 'white', // White text
+                            textAlign: 'left', // Align text to the left
+                            bgcolor: '#1976d2',
+                            paddingTop: 1,
+                            paddingBottom: 1,
+                            paddingLeft: 2,
+                            paddingRight:2,
+                            borderRadius: 5
+                        }}
+                    >
+                        AI Predictions
+                    </Typography>
+                </Grid>
+
+                <Divider
+                    sx={{
+                        backgroundColor: 'white', // Divider color
+                        mb: 3, // Margin bottom
+                        mx: 2, // Horizontal margins to avoid touching the ends
+                        width: 'calc(100% - 32px)', // Adjust width based on horizontal margins
+                        margin: "15px 0px 20px 0px"
+                    }}
+                />
+
+                <Stack direction="row" spacing={2} justifyContent="center">
+                    {predictionsData.map((pd, i) => <PredictionsCard key={i} data={pd} />)}
+                </Stack>
+            </Paper>
+        </Box>
     );
 };
 

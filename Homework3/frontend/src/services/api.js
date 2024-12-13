@@ -42,7 +42,7 @@ export const fetchChartData = async (symbol, fromDate, toDate) => {
         const max = basePrice + getRandomFloat(0, 50);
         const min = basePrice - getRandomFloat(0, 50);
         const last_trade_price = (max + min) / 2;
-        const percent_change = (Math.random() - 0.5) / 10; // between -5% and +5%
+        const percent_change = ((Math.random() - 0.5) / 10).toString(); // between -5% and +5%
         const volume = Math.floor(getRandomFloat(1000, 50000));
         const total_turnover = volume * last_trade_price;
         const turnover_best = total_turnover / 2;

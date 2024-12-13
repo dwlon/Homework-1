@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './ChartsFilter.css';
+import { Box, Button, TextField, Typography } from '@mui/material';
 
 const ChartsFilter = ({ fromDate, toDate, symbol, onFilter }) => {
     const [tempFrom, setTempFrom] = useState(fromDate);
@@ -11,26 +11,31 @@ const ChartsFilter = ({ fromDate, toDate, symbol, onFilter }) => {
     };
 
     return (
-        <div className="charts-filter">
-            <h3>Filter</h3>
-            <div className="filter-row">
-                <div className="filter-item">
-                    <label>From</label>
-                    <input type="date" value={tempFrom} onChange={(e) => setTempFrom(e.target.value)} />
-                </div>
-                <div className="filter-item">
-                    <label>To</label>
-                    <input type="date" value={tempTo} onChange={(e) => setTempTo(e.target.value)} />
-                </div>
-                <div className="filter-item">
-                    <label>Symbol</label>
-                    <input type="text" value={tempSymbol} onChange={(e) => setTempSymbol(e.target.value)} />
-                </div>
-                <div className="filter-item">
-                    <button onClick={handleFind}>Find</button>
-                </div>
-            </div>
-        </div>
+        <Box sx={{ mb: 2 }}>
+            <Typography variant="h6">Filter</Typography>
+            <Box sx={{ display: 'flex', gap: 2, mt: 2, flexWrap: 'wrap' }}>
+                <TextField
+                    label="From"
+                    type="date"
+                    InputLabelProps={{ shrink: true }}
+                    value={tempFrom}
+                    onChange={(e) => setTempFrom(e.target.value)}
+                />
+                <TextField
+                    label="To"
+                    type="date"
+                    InputLabelProps={{ shrink: true }}
+                    value={tempTo}
+                    onChange={(e) => setTempTo(e.target.value)}
+                />
+                <TextField
+                    label="Symbol"
+                    value={tempSymbol}
+                    onChange={(e) => setTempSymbol(e.target.value)}
+                />
+                <Button variant="contained" onClick={handleFind}>Find</Button>
+            </Box>
+        </Box>
     );
 };
 

@@ -1,26 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { Button, Checkbox, FormControlLabel, TextField, Box, ButtonGroup } from '@mui/material';
 import { createChart, CrosshairMode } from 'lightweight-charts';
 import ChartTypeSelector from './ChartTypeSelector';
-import './ChartComponent.css';
 
-const ChartComponent = ({ data, chartType, onChartTypeChange }) => {
+const ChartComponent = ({ data, chartType, onChartTypeChange, onRangeChange }) => {
     const chartContainerRef = useRef();
-    const tooltipRef = useRef();
-
     const [showVolume, setShowVolume] = useState(false);
-    const [showPriceLine, setShowPriceLine] = useState(true);
+    const [showMinMaxAvgLines, setShowMinMaxAvgLines] = useState(false); // New state
     const [compareSymbol, setCompareSymbol] = useState('');
     const [compareData, setCompareData] = useState([]);
-    const [seriesObjects, setSeriesObjects] = useState({ priceSeries: null, volumeSeries: null, compareSeries: null });
-
-    // For demonstration, handle multiple ranges. We'll just call a callback or event externally,
-    // but here we can simulate by adjusting data range from parent in a real case.
-    // In a real scenario, you might have a prop function that refetches data with new date ranges.
-    // For now, we assume `data` prop changes when parent fetches new data.
 
     useEffect(() => {
         if (!data || data.length === 0) return;
-        // Clear previous chart instance
+        if (!chartContainerRef.current) return;
+
+        // Clear previous chart
         chartContainerRef.current.innerHTML = '';
 
         const chart = createChart(chartContainerRef.current, {
@@ -44,7 +38,8 @@ const ChartComponent = ({ data, chartType, onChartTypeChange }) => {
             }
         });
 
-        // Price Series
+        chart.timeScale().fitContent();
+
         let priceSeries;
         if (chartType === 'line') {
             priceSeries = chart.addLineSeries({
@@ -56,54 +51,101 @@ const ChartComponent = ({ data, chartType, onChartTypeChange }) => {
             priceSeries = chart.addCandlestickSeries();
             priceSeries.setData(data.map(d => ({
                 time: d.date,
-                open: d.min + (d.max - d.min) * 0.25,
+                open: d.min + (d.max - d.min) * 0.25, // Approximation
                 high: d.max,
                 low: d.min,
                 close: d.last_trade_price
             })));
         } else if (chartType === 'area') {
-            const areaSeries = chart.addAreaSeries({ topColor: 'rgba(33, 150, 243,0.4)', bottomColor: 'rgba(33, 150, 243,0.0)', lineColor: '#2196f3', lineWidth: 2 });
+            const areaSeries = chart.addAreaSeries({
+                topColor: 'rgba(33,150,243,0.4)',
+                bottomColor: 'rgba(33,150,243,0.0)',
+                lineColor: '#2196f3',
+                lineWidth: 2
+            });
             areaSeries.setData(data.map(d => ({ time: d.date, value: d.last_trade_price })));
             priceSeries = areaSeries;
+        } else {
+            console.warn(`Unsupported chart type: ${chartType}`);
+            // Optionally, set a default chart type
+            priceSeries = chart.addLineSeries({
+                color: '#2196f3',
+                lineWidth: 2
+            });
+            priceSeries.setData(data.map(d => ({ time: d.date, value: d.last_trade_price })));
         }
 
-        // Price Line
-        if (showPriceLine && data.length > 0) {
-            const lastPrice = data[data.length - 1].last_trade_price;
+        if (showMinMaxAvgLines && data.length > 0) {
+            // Calculate min, max, and average
+            const prices = data.map(d => d.last_trade_price);
+            const minPrice = Math.min(...prices);
+            const maxPrice = Math.max(...prices);
+            const avgPrice = prices.reduce((sum, price) => sum + price, 0) / prices.length;
+
+            // Add Min Price Line
             priceSeries.createPriceLine({
-                price: lastPrice,
+                price: minPrice,
+                color: 'green',
+                lineWidth: 2,
+                lineStyle: 2,
+                axisLabelVisible: true,
+                title: 'Min Price'
+            });
+
+            // Add Max Price Line
+            priceSeries.createPriceLine({
+                price: maxPrice,
                 color: 'red',
                 lineWidth: 2,
                 lineStyle: 2,
                 axisLabelVisible: true,
-                title: 'Last Price'
+                title: 'Max Price'
+            });
+
+            // Add Average Price Line
+            priceSeries.createPriceLine({
+                price: avgPrice,
+                color: 'orange',
+                lineWidth: 2,
+                lineStyle: 2,
+                axisLabelVisible: true,
+                title: 'Average Price'
             });
         }
 
-        // Volume Series
         let volumeSeries = null;
         if (showVolume) {
             volumeSeries = chart.addHistogramSeries({
-                priceFormat: { type: 'volume' },
-                priceScaleId: '',
-                color: '#26a69a',
-                lineWidth: 2,
-                overlay: false,
+                color: '#26a69a', // Default color; will override per bar
+                priceFormat: {
+                    type: 'volume',
+                },
+                priceScaleId: '', // set as an overlay by setting a blank priceScaleId
                 scaleMargins: {
-                    top: 0.8,
-                    bottom: 0
-                }
+                    top: 0.7, // highest point of the series will be 70% away from the top
+                    bottom: 0,
+                },
+            });
+            // Update scale margins if needed
+            volumeSeries.priceScale().applyOptions({
+                scaleMargins: {
+                    top: 0.7,
+                    bottom: 0,
+                },
             });
 
-            volumeSeries.setData(data.map(d => ({
-                time: d.date, value: d.volume
-            })));
+            // Prepare volume data with dynamic colors based on %chg.
+            const volumeData = data.map(d => ({
+                time: d.date,
+                value: d.volume,
+                color: (d['percent_change'] !== undefined && d['percent_change'].includes('-'))  ? 'red' : 'green' // Dynamic color
+            }));
+
+            volumeSeries.setData(volumeData);
         }
 
-        // Compare Series
         let compSeries = null;
         if (compareData.length > 0) {
-            // We'll just add a line series for the compare symbol
             compSeries = chart.addLineSeries({
                 color: '#FF9900',
                 lineWidth: 1,
@@ -111,130 +153,78 @@ const ChartComponent = ({ data, chartType, onChartTypeChange }) => {
             compSeries.setData(compareData.map(d => ({ time: d.date, value: d.last_trade_price })));
         }
 
-        // Tooltips
-        const toolTip = document.createElement('div');
-        toolTip.className = 'chart-tooltip';
-        toolTip.style.display = 'none';
-        toolTip.style.position = 'absolute';
-        toolTip.style.background = 'rgba(255, 255, 255, 0.9)';
-        toolTip.style.border = '1px solid #ccc';
-        toolTip.style.padding = '5px';
-        toolTip.style.fontSize = '12px';
-        toolTip.style.pointerEvents = 'none';
-        chartContainerRef.current.appendChild(toolTip);
-
-        chart.subscribeCrosshairMove((param) => {
-            if (
-                param.point === undefined ||
-                param.time === undefined
-            ) {
-                toolTip.style.display = 'none';
-                return;
-            }
-
-            toolTip.style.display = 'block';
-            const price = param.seriesPrices.get(priceSeries);
-            const dateStr = param.time;
-            toolTip.innerHTML = `Date: ${dateStr}<br/>Price: ${price ? price.toFixed(2) : 'N/A'}`;
-            const coordinate = chart.priceScale('right').priceToCoordinate(price);
-            const x = param.point.x;
-            const y = coordinate - 30;
-            toolTip.style.left = x + 'px';
-            toolTip.style.top = y + 'px';
-        });
-
         const handleResize = () => {
             chart.applyOptions({ width: chartContainerRef.current.clientWidth });
         };
         window.addEventListener('resize', handleResize);
 
-        setSeriesObjects({ priceSeries, volumeSeries, compareSeries: compSeries });
-
         return () => {
             window.removeEventListener('resize', handleResize);
             chart.remove();
         };
-    }, [data, chartType, showVolume, showPriceLine, compareData]);
 
-    // For demonstration, let's simulate loading older data on demand:
-    const loadMoreData = async () => {
-        // This could call a function that fetches older data by expanding the fromDate range.
-        // For now, just log a message or simulate pushing more data into the parent.
-        alert('Load more data (simulate infinite history) would fetch older data and prepend to chartData');
-    };
+    }, [data, chartType, showVolume, showMinMaxAvgLines, compareData]); // Updated dependency
 
-    // Add compare symbol
+
     const handleAddCompare = async () => {
         if (!compareSymbol.trim()) return;
-        // In a real scenario, fetch data for the compareSymbol with the same date range:
-        const startDate = data[0].date;
-        const endDate = data[data.length - 1].date;
+        const startDate = data[0]?.date;
+        const endDate = data[data.length - 1]?.date;
+        if (!startDate || !endDate) return;
         const urlSymbol = compareSymbol.trim().toUpperCase();
-        // Reuse fetchChartData from services:
-        const { fetchChartData } = await import('../../services/api');
-        const compData = await fetchChartData(urlSymbol, startDate, endDate);
-        setCompareData(compData);
+        try {
+            const { fetchChartData } = await import('../../services/api');
+            const compData = await fetchChartData(urlSymbol, startDate, endDate);
+            setCompareData(compData);
+        } catch (error) {
+            console.error('Error fetching compare data:', error);
+            alert('Failed to fetch compare data. Please check the symbol and try again.');
+        }
     };
 
-    // Remove compare series
     const handleRemoveCompare = () => {
         setCompareData([]);
     };
 
-    // Range switches:
-    const handleRangeChange = async (range) => {
-        // This would actually inform the parent to refetch data for a new range.
-        // Since we control from/to date from parent in previous steps, you'd integrate a callback.
-        // Here, we simulate by just alerting.
-        // In a real integration:
-        // onRangeChange('1M') => parent sets fromDate = today - 1 month, toDate = today, fetchData();
-        alert(`Range switched to: ${range}. Implement logic to refetch data in parent component.`);
-    };
-
     return (
-        <div className="chart-component-container">
-            <div className="chart-controls">
+        <Box className="chart-component-container">
+            <Box className="chart-controls" sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2, flexWrap: 'wrap' }}>
                 <ChartTypeSelector chartType={chartType} onChartTypeChange={onChartTypeChange} />
 
-                {/* Range Switcher */}
-                <div className="range-switcher">
-                    <button onClick={() => handleRangeChange('1W')}>1W</button>
-                    <button onClick={() => handleRangeChange('1M')}>1M</button>
-                    <button onClick={() => handleRangeChange('1Y')}>1Y</button>
-                    <button onClick={() => handleRangeChange('10Y')}>10Y</button>
-                </div>
+                <ButtonGroup variant="outlined" size="small">
+                    <Button onClick={() => onRangeChange('1W')}>1W</Button>
+                    <Button onClick={() => onRangeChange('1M')}>1M</Button>
+                    <Button onClick={() => onRangeChange('1Y')}>1Y</Button>
+                    <Button onClick={() => onRangeChange('10Y')}>10Y</Button>
+                </ButtonGroup>
 
-                {/* Volume Toggle */}
-                <label style={{ marginLeft: '10px' }}>
-                    <input type="checkbox" checked={showVolume} onChange={(e) => setShowVolume(e.target.checked)} />
-                    Show Volume
-                </label>
+                <FormControlLabel
+                    control={<Checkbox checked={showVolume} onChange={(e) => setShowVolume(e.target.checked)} />}
+                    label="Show Volume"
+                />
 
-                {/* Price Line Toggle */}
-                <label style={{ marginLeft: '10px' }}>
-                    <input type="checkbox" checked={showPriceLine} onChange={(e) => setShowPriceLine(e.target.checked)} />
-                    Show Last Price Line
-                </label>
+                {/* New Checkbox for Min, Max, Avg Lines */}
+                <FormControlLabel
+                    control={<Checkbox checked={showMinMaxAvgLines} onChange={(e) => setShowMinMaxAvgLines(e.target.checked)} />}
+                    label="Show Min, Max, Avg Lines"
+                />
 
-                {/* Compare Symbol */}
-                <div style={{ marginLeft: '10px', display: 'inline-block' }}>
-                    <input
-                        type="text"
-                        placeholder="Compare Symbol"
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <TextField
+                        size="small"
+                        label="Compare Symbol"
                         value={compareSymbol}
                         onChange={(e) => setCompareSymbol(e.target.value)}
-                        style={{ width: '100px', marginRight: '5px' }}
+                        sx={{ width: '120px' }}
                     />
-                    <button onClick={handleAddCompare}>Add</button>
-                    <button onClick={handleRemoveCompare}>Remove</button>
-                </div>
+                    <Button variant="contained" size="small" onClick={handleAddCompare}>Add</Button>
+                    <Button variant="outlined" size="small" onClick={handleRemoveCompare}>Remove</Button>
+                </Box>
 
-                {/* Load More Data (Infinite History Simulation) */}
-                <button style={{ marginLeft: '10px' }} onClick={loadMoreData}>Load More Data</button>
-            </div>
+            </Box>
 
-            <div ref={chartContainerRef} className="chart-area" style={{ position: 'relative' }}></div>
-        </div>
+            <Box ref={chartContainerRef} className="chart-area" sx={{ position: 'relative', width: '100%', height: 400 }} />
+        </Box>
     );
 };
 

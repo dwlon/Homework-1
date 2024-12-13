@@ -1,18 +1,28 @@
+// MarketUpdate.js
 import React, { useEffect, useState } from 'react';
-import { fetchMarketData } from '../../services/api';
-import MarketTable from './MarketTable';
-import './MarketUpdate.css';
+import {
+    Box,
+    Typography,
+    TextField,
+    Paper,
+    ToggleButton,
+    ToggleButtonGroup,
+} from '@mui/material';
+import { fetchMarketData } from "../../services/api";
+import MarketTable from './MarketTable'; // Import the new MarketTable component
 
 const MarketUpdate = () => {
-    const [allData, setAllData] = useState([]);
+    const [category, setCategory] = useState('Gainers');
     const [filteredData, setFilteredData] = useState([]);
-    const [category, setCategory] = useState('Gainers'); // default view
     const [searchQuery, setSearchQuery] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 4;
+    const [allData, setAllData] = useState([]);
+
+    // Pagination states
+    const [page, setPage] = useState(0);
+    const rowsPerPage = 4; // Fixed to 4 rows per page
 
     useEffect(() => {
-        // fetch data from the mock API
+        // Fetch data from the mock API
         fetchMarketData().then(data => {
             setAllData(data);
         });
@@ -25,7 +35,7 @@ const MarketUpdate = () => {
     const filterData = () => {
         let result = [...allData];
 
-        // filter by category
+        // Filter by category
         if (category === 'Gainers') {
             result = result.filter(d => d.change > 0);
         } else if (category === 'Losers') {
@@ -35,64 +45,63 @@ const MarketUpdate = () => {
             result = result.filter(d => d.sector && d.sector === 'Technology');
         }
 
-        // filter by search query
+        // Filter by search query
         if (searchQuery.trim() !== '') {
             const q = searchQuery.toLowerCase();
             result = result.filter(d => d.symbol.toLowerCase().includes(q));
         }
 
         setFilteredData(result);
-        setCurrentPage(1); // reset to first page whenever filters change
+        setPage(0); // Reset to first page whenever data changes
     };
 
-    // pagination
-    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const displayedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
-
-    const handleCategoryClick = (cat) => {
-        setCategory(cat);
+    // Handle page change
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
     };
 
-    const handleSearch = (e) => {
-        setSearchQuery(e.target.value);
-    };
-
-    const handleNext = () => {
-        if (currentPage < totalPages) setCurrentPage(prev => prev + 1);
-    };
-
-    const handlePrev = () => {
-        if (currentPage > 1) setCurrentPage(prev => prev - 1);
-    };
+    // Calculate the rows to display on the current page
+    const paginatedData = filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
     return (
-        <section className="market-update">
-            <div className="market-header">
-                <h2>Market Update</h2>
-                <div className="market-tabs">
-                    <button onClick={() => handleCategoryClick('Gainers')} className={category==='Gainers' ? 'active' : ''}>Gainers</button>
-                    <button onClick={() => handleCategoryClick('Losers')} className={category==='Losers' ? 'active' : ''}>Losers</button>
-                    <button onClick={() => handleCategoryClick('Top Sectors')} className={category==='Top Sectors' ? 'active' : ''}>Top Sectors</button>
-                </div>
-                <div className="market-search">
-                    <input
-                        type="text"
-                        placeholder="Search by symbol..."
-                        value={searchQuery}
-                        onChange={handleSearch}
-                    />
-                </div>
-            </div>
+        <Box sx={{ p: 4, backgroundColor: '#fafafa' }} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh'}}>
+            <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column'}}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', width: "100%",gap: 2, mb: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start'}}>
+                <Typography variant="h4">Market Update</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, width: "100%" }}>
+                <ToggleButtonGroup
+                    value={category}
+                    exclusive
+                    onChange={(e, val) => val && setCategory(val)}
+                    size="small"
+                >
+                    <ToggleButton value="Gainers">Gainers</ToggleButton>
+                    <ToggleButton value="Losers">Losers</ToggleButton>
+                    <ToggleButton value="Top Sectors">Top Sectors</ToggleButton>
+                </ToggleButtonGroup>
+                <TextField
+                    variant="outlined"
+                    size="small"
+                    placeholder="Search by symbol..."
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    sx={{ ml: 'auto' }}
+                />
+                </Box>
+            </Box>
 
-            <MarketTable data={displayedData} />
-
-            <div className="pagination">
-                <button onClick={handlePrev} disabled={currentPage === 1}>Prev</button>
-                <span>Page {currentPage} of {totalPages || 1}</span>
-                <button onClick={handleNext} disabled={currentPage === totalPages || totalPages===0}>Next</button>
-            </div>
-        </section>
+            {/* Pass necessary props to MarketTable */}
+            <MarketTable
+                data={paginatedData}
+                count={filteredData.length}
+                page={page}
+                rowsPerPage={rowsPerPage}
+                handleChangePage={handleChangePage}
+            />
+            </Box>
+        </Box>
     );
 };
 

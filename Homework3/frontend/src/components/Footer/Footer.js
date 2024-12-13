@@ -1,17 +1,17 @@
 import React from 'react';
-import './Footer.css';
+import { Box, Typography } from '@mui/material';
 
 const Footer = () => {
     return (
-        <footer className="footer-container">
-            <div className="footer-logo">MY LOGO</div>
-            <div className="footer-contact">
-                <p>Let's talk! 👍</p>
-                <p>+97788586458</p>
-                <p>Test@Mail.com</p>
-            </div>
-            <p className="footer-copy">Copyright © 2024 MSE</p>
-        </footer>
+        <Box sx={{ p: 4, backgroundColor: '#222', color: '#fff', textAlign: 'center' }}>
+            <Typography variant="h6">MY LOGO</Typography>
+            <Typography variant="body2">Let's talk! 👍</Typography>
+            <Typography variant="body2">+97788586458</Typography>
+            <Typography variant="body2">Test@Mail.com</Typography>
+            <Typography variant="caption" display="block" sx={{ mt: 2, color: '#aaa' }}>
+                © 2024 MSE
+            </Typography>
+        </Box>
     );
 };
 

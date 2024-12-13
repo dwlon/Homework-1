@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import './HistoricalTable.css';
+import {
+    Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
+    Button, Box, Typography
+} from '@mui/material';
 
 const HistoricalTable = ({ data }) => {
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 4;
+    const itemsPerPage = 10;
 
     const totalPages = Math.ceil((data || []).length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -18,45 +21,47 @@ const HistoricalTable = ({ data }) => {
     };
 
     return (
-        <div className="historical-table-container">
-            <table className="historical-table">
-                <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Last Trade</th>
-                    <th>Max</th>
-                    <th>Min</th>
-                    <th>%Chg</th>
-                    <th>Volume</th>
-                    <th>Total Turnover</th>
-                </tr>
-                </thead>
-                <tbody>
-                {currentData.map((row, i) => (
-                    <tr key={i}>
-                        <td>{row.date}</td>
-                        <td>{row.last_trade_price.toFixed(2)}</td>
-                        <td>{row.max.toFixed(2)}</td>
-                        <td>{row.min.toFixed(2)}</td>
-                        <td>{(row.percent_change * 100).toFixed(2)}%</td>
-                        <td>{row.volume.toLocaleString()}</td>
-                        <td>{row.total_turnover.toLocaleString()}</td>
-                    </tr>
-                ))}
-                {currentData.length === 0 && (
-                    <tr><td colSpan="7">No data</td></tr>
-                )}
-                </tbody>
-            </table>
+        <Box>
+            <TableContainer component={Paper}>
+                <Table size="small">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Date</TableCell>
+                            <TableCell>Last Trade</TableCell>
+                            <TableCell>Max</TableCell>
+                            <TableCell>Min</TableCell>
+                            <TableCell>%Chg</TableCell>
+                            <TableCell>Volume</TableCell>
+                            <TableCell>Total Turnover</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {currentData.map((row, i) => (
+                            <TableRow key={i}>
+                                <TableCell>{row.date}</TableCell>
+                                <TableCell>{row.last_trade_price.toFixed(2)}</TableCell>
+                                <TableCell>{row.max.toFixed(2)}</TableCell>
+                                <TableCell>{row.min.toFixed(2)}</TableCell>
+                                <TableCell>{(row.percent_change * 100).toFixed(2)}%</TableCell>
+                                <TableCell>{row.volume.toLocaleString()}</TableCell>
+                                <TableCell>{row.total_turnover.toLocaleString()}</TableCell>
+                            </TableRow>
+                        ))}
+                        {currentData.length === 0 && (
+                            <TableRow><TableCell colSpan={7}>No data</TableCell></TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+            </TableContainer>
 
             {totalPages > 1 && (
-                <div className="historical-pagination">
-                    <button onClick={handlePrev} disabled={currentPage === 1}>Prev</button>
-                    <span>Page {currentPage} of {totalPages}</span>
-                    <button onClick={handleNext} disabled={currentPage === totalPages}>Next</button>
-                </div>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 2 }}>
+                    <Button variant="outlined" onClick={handlePrev} disabled={currentPage === 1}>Prev</Button>
+                    <Typography variant="body2">Page {currentPage} of {totalPages}</Typography>
+                    <Button variant="outlined" onClick={handleNext} disabled={currentPage === totalPages}>Next</Button>
+                </Box>
             )}
-        </div>
+        </Box>
     );
 };
 

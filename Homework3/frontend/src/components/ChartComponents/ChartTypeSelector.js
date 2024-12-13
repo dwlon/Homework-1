@@ -1,21 +1,28 @@
 import React from 'react';
+import { Button, ButtonGroup } from '@mui/material';
 
 const ChartTypeSelector = ({ chartType, onChartTypeChange }) => {
     return (
-        <div className="chart-type-selector">
-            <button
+        <ButtonGroup variant="outlined" size="small">
+            <Button
                 onClick={() => onChartTypeChange('line')}
-                className={chartType === 'line' ? 'active' : ''}
+                variant={chartType === 'line' ? 'contained' : 'outlined'}
             >
                 Line
-            </button>
-            <button
+            </Button>
+            <Button
                 onClick={() => onChartTypeChange('candlestick')}
-                className={chartType === 'candlestick' ? 'active' : ''}
+                variant={chartType === 'candlestick' ? 'contained' : 'outlined'}
             >
                 Candlestick
-            </button>
-        </div>
+            </Button>
+            <Button
+                onClick={() => onChartTypeChange('area')}
+                variant={chartType === 'area' ? 'contained' : 'outlined'}
+            >
+                Area
+            </Button>
+        </ButtonGroup>
     );
 };
 

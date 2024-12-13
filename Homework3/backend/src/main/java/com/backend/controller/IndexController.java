@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -26,6 +27,17 @@ public class IndexController {
     @GetMapping("/all")
     public ResponseEntity<List<IndexDto>> getAll() {
         List<IndexDto> dtoData = indexService.findAll();
+
+        return new ResponseEntity<>(dtoData, HttpStatus.OK);
+    }
+
+    @GetMapping("/all/last-7-days")
+    public ResponseEntity<List<IndexDto>> getLastSevenDaysStocks() {
+        LocalDate sevenDaysAgo = LocalDate.now().minusDays(7);
+
+        List<IndexDto> dtoData = indexService.findAll();
+
+
 
         return new ResponseEntity<>(dtoData, HttpStatus.OK);
     }

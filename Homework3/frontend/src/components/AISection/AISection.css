@@ -1,0 +1,15 @@
+.ai-section {
+    background: #fff;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.ai-section h2 {
+    margin-bottom: 20px;
+}
+
+.predictions-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}

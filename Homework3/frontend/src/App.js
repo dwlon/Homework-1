@@ -1,21 +1,17 @@
-import './App.css';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Home from "./Home";
-import List from "./List";
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import ChartsPage from './pages/ChartsPage';
 
 function App() {
-  return (
-      <Router>
-        <Routes>
-          <Route exact path="/" element={<Home/>}/>
-          <Route path="/list" exact={true}
-                 element={<List/>}/>
-
-        </Routes>
-      </Router>
-  );
+    return (
+        <Router>
+            <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/charts" element={<ChartsPage />} />
+            </Routes>
+        </Router>
+    );
 }
-
-
 
 export default App;

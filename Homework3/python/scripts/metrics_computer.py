@@ -56,7 +56,7 @@ def calculate_indicators(df, period):
     df['midpoint'] = (df['max'] + df['min']) / 2
     short_sma = df['midpoint'].rolling(window=5).mean()
     long_sma = df['midpoint'].rolling(window=window).mean()
-    indicators['ao'] = (short_sma - long_sma).iloc[-1] if len(df) >= 34 else np.nan
+    indicators['ao'] = (short_sma - long_sma).iloc[-1] if len(df) >= window else np.nan
 
     williams = momentum.WilliamsRIndicator(high=df['max'], low=df['min'], close=df['last_trade_price'])
     indicators['williams'] = williams.williams_r().iloc[-1]

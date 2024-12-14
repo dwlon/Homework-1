@@ -6,6 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="2f0934ea-574f-4b6e-9f5d-2e11cc7a3519" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/../../database/stock_data.db" beforeDir="false" afterPath="$PROJECT_DIR$/../../database/stock_data.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/33ec39a3-24be-458c-ab2a-8b8f3d20e616.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/33ec39a3-24be-458c-ab2a-8b8f3d20e616.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/metrics_computer.py" beforeDir="false" afterPath="$PROJECT_DIR$/metrics_computer.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -76,6 +78,8 @@
       <updated>1734096314758</updated>
       <workItem from="1734096315899" duration="5516000" />
       <workItem from="1734108349683" duration="21000" />
+      <workItem from="1734111965316" duration="474000" />
+      <workItem from="1734173692963" duration="3128000" />
     </task>
     <servers />
   </component>
@@ -122,6 +126,6 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/scripts$scraper.coverage" NAME="scraper Coverage Results" MODIFIED="1734101688940" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/scripts$metrics_computer.coverage" NAME="metrics_computer Coverage Results" MODIFIED="1734108361421" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/scripts$metrics_computer.coverage" NAME="metrics_computer Coverage Results" MODIFIED="1734176759470" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

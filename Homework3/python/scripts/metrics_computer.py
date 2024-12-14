@@ -23,7 +23,7 @@ def initialize_table():
             ema REAL,
             wma REAL,
             hma REAL,
-            tma REAL,
+            ibl REAL,
             PRIMARY KEY (issuer, period, start_date, end_date)
         )
     ''')
@@ -43,20 +43,22 @@ def calculate_indicators(df, period):
     rsi = momentum.RSIIndicator(close=df['last_trade_price'], window=window)
     indicators['rsi'] = rsi.rsi().iloc[-1]
 
-    macd = trend.MACD(close=df['last_trade_price'])
+    macd = trend.MACD(close=df['last_trade_price'], window_slow=12, window_fast=26)
     indicators['macd'] = macd.macd().iloc[-1]
 
     stoch = momentum.StochasticOscillator(
         high=df['max'],
         low=df['min'],
-        close=df['last_trade_price']
+        close=df['last_trade_price'],
+        window=window,
+        smooth_window=3
     )
     indicators['stoch'] = stoch.stoch().iloc[-1]
 
     df['midpoint'] = (df['max'] + df['min']) / 2
     short_sma = df['midpoint'].rolling(window=5).mean()
     long_sma = df['midpoint'].rolling(window=window).mean()
-    indicators['ao'] = (short_sma - long_sma).iloc[-1] if len(df) >= window else np.nan
+    indicators['ao'] = (short_sma - long_sma).iloc[-1]
 
     williams = momentum.WilliamsRIndicator(high=df['max'], low=df['min'], close=df['last_trade_price'])
     indicators['williams'] = williams.williams_r().iloc[-1]
@@ -64,19 +66,15 @@ def calculate_indicators(df, period):
     cci = trend.CCIIndicator(high=df['max'], low=df['min'], close=df['last_trade_price'], window=window)
     indicators['cci'] = cci.cci().iloc[-1]
 
-    indicators['sma'] = df['last_trade_price'].rolling(window=window).mean().iloc[-1] if len(df) >= window else np.nan
-    indicators['ema'] = df['last_trade_price'].ewm(span=window, adjust=False).mean().iloc[-1] if len(df) >= window else np.nan
-    indicators['wma'] = \
-        df['last_trade_price'].rolling(window=window).apply(lambda x: np.average(x, weights=np.arange(1, window + 1))).iloc[-1] if len(
-        df) >= window else np.nan
-    indicators['hma'] = df['last_trade_price'].rolling(window=window).apply(lambda x: np.sqrt(np.average(x ** 2))).iloc[
-        -1] if len(df) >= window else np.nan
+    indicators['sma'] = df['last_trade_price'].rolling(window=window).mean().iloc[-1]
+    indicators['ema'] = df['last_trade_price'].ewm(span=window, adjust=False).mean().iloc[-1]
+    indicators['wma'] = df['last_trade_price'].rolling(window=window).apply(lambda x: np.average(x, weights=np.arange(1, window + 1))).iloc[-1]
+    indicators['hma'] = df['last_trade_price'].rolling(window=window).apply(lambda x: np.sqrt(np.average(x ** 2))).iloc[-1]
 
-    if period == '1d':
-        indicators['tma'] = np.nan
-    else:
-        tma_1 = df['last_trade_price'].rolling(window=window).mean()
-        indicators['tma'] = tma_1.rolling(window=window).mean().iloc[-1] if len(df) >= window else np.nan
+    high = df['max'].rolling(window=window).max()
+    low = df['min'].rolling(window=window).min()
+    ibl = (high + low) / 2
+    indicators['ibl'] = ibl.iloc[-1]
 
     return indicators
 
@@ -104,12 +102,12 @@ def precompute_metrics(conn, issuer, period):
         INSERT OR REPLACE INTO precomputed_metrics (
             issuer, period, start_date, end_date,
             rsi, macd, stoch, ao, williams, cci,
-            sma, ema, wma, hma, tma
+            sma, ema, wma, hma, ibl
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ''', (
         issuer, period, start_date, end_date,
         metrics['rsi'], metrics['macd'], metrics['stoch'], metrics['ao'], metrics['williams'], metrics['cci'],
-        metrics['sma'], metrics['ema'], metrics['wma'], metrics['hma'], metrics['tma']
+        metrics['sma'], metrics['ema'], metrics['wma'], metrics['hma'], metrics['ibl']
     ))
     conn.commit()
 

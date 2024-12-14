@@ -45,27 +45,27 @@ def calculate_metrics(df, period):
         hma_window=14
         ibl_window=9
     elif period == '1w':
-        window = 14 * 5
+        window = 5 * 5
         window_slow = 12 * 5
         window_fast = 26 * 5
         awesome_slow = 5 * 5
         awesome_fast = 34 * 5
         sma_window = 10 * 5
         ema_window = 12 * 5
-        wma_window = 50
-        hma_window = 50
+        wma_window = 20
+        hma_window = 20
         ibl_window = 26
     elif period == '1m':
-        window = 14 * 21
+        window = 3 * 21
         window_slow = 12 * 21
         window_fast = 26 * 21
         awesome_slow = 5 * 21
         awesome_fast = 34 * 21
-        sma_window = 10 * 21
-        ema_window = 12 * 21
-        wma_window= 200
-        hma_window = 200
-        ibl_window = 50
+        sma_window = 50
+        ema_window = 50
+        wma_window= 50
+        hma_window = 50
+        ibl_window = 26
 
     rsi = momentum.RSIIndicator(close=df['last_trade_price'], window=window)
     metrics['rsi'] = rsi.rsi().iloc[-1]

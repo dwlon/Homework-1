@@ -1,3 +1,6 @@
+// src/api.js
+import axios from 'axios';
+
 export const fetchMarketData = async () => {
     // simulate fetching data
     return new Promise((resolve) => {
@@ -69,3 +72,43 @@ export const fetchChartData = async (symbol, fromDate, toDate) => {
 
     return data;
 };
+
+
+
+const API_BASE_URL = 'http://localhost:8080/api';
+
+// Fetch all data
+export const fetchAllData = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/all`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching all data:', error);
+        throw error;
+    }
+};
+
+// Fetch last seven days data per issuer
+export const fetchLastSevenDaysPerIssuer = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/last-seven-days`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching last seven days data:', error);
+        throw error;
+    }
+};
+
+// Fetch data for a specified issuer between startDate and endDate
+export const fetchIssuerData = async (issuer, startDate, endDate) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/issuer-data`, {
+            params: { issuer, startDate, endDate }
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching data for issuer ${issuer}:`, error);
+        throw error;
+    }
+};
+

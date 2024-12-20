@@ -10,34 +10,113 @@ import {
     TableHead,
     TableRow,
     TablePagination,
-} from "@mui/material";
+} from '@mui/material';
 import MiniChart from './MiniChart';
 
 const MarketTable = ({ data, count, page, rowsPerPage, handleChangePage }) => {
     return (
-        <Box sx={{ display: "flex", justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
-            <TableContainer component={Paper} sx={{ width: 'fit-content'}}>
-                <Table size="small" >
+        <Box
+            sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                flexDirection: 'column',
+            }}
+        >
+            <TableContainer component={Paper} sx={{ width: 'fit-content' }}>
+                <Table size="small">
                     <TableHead>
                         <TableRow>
-                            <TableCell sx={{ width: '100px', textAlign: 'center', verticalAlign: 'middle' }}>Symbol</TableCell>
-                            <TableCell sx={{ width: '100px', textAlign: 'center', verticalAlign: 'middle' }}>LTP</TableCell>
-                            <TableCell sx={{ width: '100px', textAlign: 'center', verticalAlign: 'middle' }}>24h %</TableCell>
-                            <TableCell sx={{ width: '100px', textAlign: 'center', verticalAlign: 'middle' }}>Quantity</TableCell>
-                            <TableCell sx={{ width: '100px', textAlign: 'center', verticalAlign: 'middle' }}>Last 7 Days</TableCell>
+                            <TableCell
+                                sx={{
+                                    width: '100px',
+                                    textAlign: 'center',
+                                    verticalAlign: 'middle',
+                                }}
+                            >
+                                Symbol
+                            </TableCell>
+                            <TableCell
+                                sx={{
+                                    width: '100px',
+                                    textAlign: 'center',
+                                    verticalAlign: 'middle',
+                                }}
+                            >
+                                LTP
+                            </TableCell>
+                            <TableCell
+                                sx={{
+                                    width: '100px',
+                                    textAlign: 'center',
+                                    verticalAlign: 'middle',
+                                }}
+                            >
+                                24h %
+                            </TableCell>
+                            <TableCell
+                                sx={{
+                                    width: '100px',
+                                    textAlign: 'center',
+                                    verticalAlign: 'middle',
+                                }}
+                            >
+                                Quantity
+                            </TableCell>
+                            <TableCell
+                                sx={{
+                                    width: '100px',
+                                    textAlign: 'center',
+                                    verticalAlign: 'middle',
+                                }}
+                            >
+                                Last 7 Days
+                            </TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {data.map((d, i) => (
                             <TableRow key={i}>
-                                <TableCell sx={{ textAlign: 'center', verticalAlign: 'middle' }}>{d.symbol}</TableCell>
-                                <TableCell sx={{ textAlign: 'center', verticalAlign: 'middle' }}>{d.ltp.toFixed(2)}</TableCell>
-                                <TableCell sx={{ textAlign: 'center', verticalAlign: 'middle', color: d.change < 0 ? 'red' : 'green' }}>
-                                    {(d.change * 100).toFixed(2)}%
+                                <TableCell
+                                    sx={{ textAlign: 'center', verticalAlign: 'middle' }}
+                                >
+                                    {d.symbol}
                                 </TableCell>
-                                <TableCell sx={{ textAlign: 'center', verticalAlign: 'middle' }}>{d.quantity.toLocaleString()}</TableCell>
-                                <TableCell sx={{ width: '300px', display: "flex", justifyContent: 'center', alignItems: 'middle'}}>
-                                    <MiniChart data={d.last7Days} color={d.change < 0 ? 'red' : 'green'} topColor={d.change < 0 ? 'red' : 'green'} bottomColor={d.change < 0 ? '#80FF0000' : '#20fc0303'}/>
+                                <TableCell
+                                    sx={{ textAlign: 'center', verticalAlign: 'middle' }}
+                                >
+                                    {d.ltp}
+                                </TableCell>
+                                <TableCell
+                                    sx={{
+                                        textAlign: 'center',
+                                        verticalAlign: 'middle',
+                                        color: d.change.indexOf('-')!==-1 ? 'red' : 'green',
+                                    }}
+                                >
+                                    {d.change}%
+                                </TableCell>
+                                <TableCell
+                                    sx={{ textAlign: 'center', verticalAlign: 'middle' }}
+                                >
+                                    {d.quantity}
+                                </TableCell>
+                                <TableCell
+                                    sx={{
+                                        width: '300px',
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'middle',
+                                    }}
+                                >
+                                    <MiniChart
+                                        data={d.last7Days}
+                                        color={d.last7Days[0] > d.last7Days[d.last7Days.length-1] ? 'red' : 'green'}
+                                        topColor={d.last7Days[0] > d.last7Days[d.last7Days.length-1] ? 'red' : 'green'}
+                                        bottomColor={
+                                            d.last7Days[0] > d.last7Days[d.last7Days.length-1] ? '#ffffff' : '#20fc0303'
+                                        }
+                                    />
                                 </TableCell>
                             </TableRow>
                         ))}
@@ -60,7 +139,7 @@ const MarketTable = ({ data, count, page, rowsPerPage, handleChangePage }) => {
                 onPageChange={handleChangePage}
                 rowsPerPage={rowsPerPage}
                 rowsPerPageOptions={[]} // Hide the rows per page selector
-                sx={{ float: 'right'}}
+                sx={{ float: 'right' }}
             />
         </Box>
     );

@@ -1,3 +1,4 @@
+// MiniChart.js
 import React, { useEffect, useRef } from 'react';
 import { createChart } from 'lightweight-charts';
 
@@ -6,6 +7,10 @@ const MiniChart = ({ data, color, topColor, bottomColor }) => {
 
     useEffect(() => {
         if (!data || data.length === 0) return;
+
+        // Clear any previous content
+        chartContainerRef.current.innerHTML = '';
+
         const chart = createChart(chartContainerRef.current, {
             width: 200,
             height: 70,
@@ -20,26 +25,41 @@ const MiniChart = ({ data, color, topColor, bottomColor }) => {
             timeScale: { visible: false },
             priceScale: { visible: false },
             crosshair: { vertLine: { visible: false }, horzLine: { visible: false } },
-
         });
 
         const lineSeries = chart.addAreaSeries({
             topColor: topColor,
             bottomColor: bottomColor,
             lineColor: color,
-            lineWidth: 2
+            lineWidth: 2,
         });
 
         chart.timeScale().fitContent();
 
-        lineSeries.setData(data.map((value, index) => ({ time: index + 1, value })));
+        lineSeries.setData(
+            data.map((value, index) => ({
+                time: index + 1,
+                value: value,
+            }))
+        );
 
         return () => {
             chart.remove();
         };
-    }, [data, color]);
+    }, [data, color, topColor, bottomColor]);
 
-    return <div style={{ display: 'flex', justifyContent: 'center', borderBottom: '1px solid #ddd', padding: '5px', width:"fit-content" }} ref={chartContainerRef} />;
+    return (
+        <div
+            style={{
+                display: 'flex',
+                justifyContent: 'center',
+                borderBottom: '1px solid #ddd',
+                padding: '5px',
+                width: 'fit-content',
+            }}
+            ref={chartContainerRef}
+        />
+    );
 };
 
 export default MiniChart;

@@ -1,3 +1,4 @@
+// src/components/HistoricalTable/HistoricalTable.js
 import React, { useState } from 'react';
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
@@ -39,12 +40,12 @@ const HistoricalTable = ({ data }) => {
                         {currentData.map((row, i) => (
                             <TableRow key={i}>
                                 <TableCell>{row.date}</TableCell>
-                                <TableCell>{row.last_trade_price.toFixed(2)}</TableCell>
-                                <TableCell>{row.max.toFixed(2)}</TableCell>
-                                <TableCell>{row.min.toFixed(2)}</TableCell>
-                                <TableCell>{(row.percent_change * 100).toFixed(2)}%</TableCell>
-                                <TableCell>{row.volume.toLocaleString()}</TableCell>
-                                <TableCell>{row.total_turnover.toLocaleString()}</TableCell>
+                                <TableCell>{row.last_trade_price}</TableCell>
+                                <TableCell>{row.max}</TableCell>
+                                <TableCell>{row.min}</TableCell>
+                                <TableCell>{row.percent_change}%</TableCell>
+                                <TableCell>{row.volume}</TableCell>
+                                <TableCell>{row.total_turnover}</TableCell>
                             </TableRow>
                         ))}
                         {currentData.length === 0 && (

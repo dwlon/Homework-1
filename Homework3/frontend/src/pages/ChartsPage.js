@@ -1,30 +1,50 @@
+// src/pages/ChartsPage.js
 import React, { useEffect, useState } from 'react';
 import { Box, Typography } from '@mui/material';
 import ChartsFilter from '../components/ChartsFilter/ChartsFilter';
 import ChartComponent from '../components/ChartComponents/ChartComponent';
 import HistoricalTable from '../components/HistoricalTable/HistoricalTable';
 
-import { fetchChartData } from '../services/api';
+import {fetchIssuerData, fetchAllIssuers} from '../services/api';
 
 const ChartsPage = () => {
-    // Default values: last 30 days and symbol "ALKALOID"
+    // Default values: last 30 days and symbol "ALK"
     const today = new Date();
     const fromDateDefault = new Date(today);
     fromDateDefault.setDate(fromDateDefault.getDate() - 30);
 
     const [fromDate, setFromDate] = useState(fromDateDefault.toISOString().slice(0, 10));
     const [toDate, setToDate] = useState(today.toISOString().slice(0, 10));
-    const [symbol, setSymbol] = useState("ALKALOID");
+    const [symbol, setSymbol] = useState("ALK");
     const [chartData, setChartData] = useState([]);
     const [chartType, setChartType] = useState('line'); // 'line', 'candlestick', 'area'
+    const [allSymbols, setAllSymbols] = useState([]); // To store all symbols for the dropdown
+
+    useEffect(() => {
+        // Fetch all issuers to populate the dropdown
+        const fetchSymbols = async () => {
+            try {
+                const issuers = await fetchAllIssuers();
+                setAllSymbols(issuers);
+            } catch (error) {
+                console.error('Failed to fetch issuers:', error);
+            }
+        };
+        fetchSymbols();
+    }, []);
 
     useEffect(() => {
         fetchData();
     }, [fromDate, toDate, symbol]);
 
     const fetchData = async () => {
-        const data = await fetchChartData(symbol, fromDate, toDate);
-        setChartData(data);
+        try {
+            console.log(fromDate)
+            const data = await fetchIssuerData(symbol, fromDate, toDate);
+            setChartData(data);
+        } catch (error) {
+            console.error('Error fetching issuer data:', error);
+        }
     };
 
     const handleFilter = (fDate, tDate, sym) => {
@@ -58,10 +78,10 @@ const ChartsPage = () => {
     };
 
     return (
-        <Box className="charts-page" sx={{display: 'flex', justifyContent: "center", alignContent: 'center'}}>
-            <Box sx={{display: 'flex', justifyContent: "center", alignContent: 'center', width: "80vw"}}>
+        <Box className="charts-page" sx={{ display: 'flex', justifyContent: "center", alignContent: 'center', p: 4 }}>
+            <Box sx={{ display: 'flex', justifyContent: "center", alignContent: 'center', width: "80vw" }}>
 
-                <Box className="charts-container" sx={{ p: 3 }}>
+                <Box className="charts-container" sx={{ p: 3, width: "100%" }}>
                     <ChartsFilter
                         fromDate={fromDate}
                         toDate={toDate}
@@ -76,8 +96,11 @@ const ChartsPage = () => {
                         <ChartComponent
                             data={chartData}
                             chartType={chartType}
+                            fromDate={fromDate}
+                            toDate={toDate}
                             onChartTypeChange={setChartType}
                             onRangeChange={handleRangeChange}
+                            allSymbols={allSymbols} // Pass allSymbols to ChartComponent
                         />
                     </Box>
 
@@ -85,7 +108,7 @@ const ChartsPage = () => {
                         <Typography variant="h6" component="h3" gutterBottom>
                             Historical Data
                         </Typography>
-                        <HistoricalTable data={chartData} />
+                        <HistoricalTable data={chartData}/>
                     </Box>
                 </Box>
 

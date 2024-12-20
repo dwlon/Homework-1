@@ -6,8 +6,12 @@ import com.backend.repository.IndexRepository;
 import com.backend.service.IndexService;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
 
 @Service
 public class IndexServiceImpl implements IndexService {
@@ -23,6 +27,51 @@ public class IndexServiceImpl implements IndexService {
         return data.stream()
                 .map(IndexDto::fromEntity)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<String, List<IndexDto>> findLastSevenDaysPerIssuer() {
+        // Fetch all distinct issuers
+        List<String> issuers = indexRepository.findAll()
+                .stream()
+                .map(Index::getIssuer)
+                .distinct()
+                .collect(Collectors.toList());
+
+        Map<String, List<IndexDto>> result = new HashMap<>();
+
+        for (String issuer : issuers) {
+            List<Index> latestSeven = indexRepository.findByIssuerOrderByDateDesc(issuer)
+                    .stream()
+                    .limit(7)
+                    .collect(Collectors.toList());
+
+            if (latestSeven.size() == 7) {
+                // Reverse to have ascending order
+                Collections.reverse(latestSeven);
+
+                List<IndexDto> dtoList = latestSeven.stream()
+                        .map(IndexDto::fromEntity)
+                        .collect(Collectors.toList());
+
+                result.put(issuer, dtoList);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<IndexDto> findByIssuerAndDateRange(String issuer, String startDate, String endDate) {
+        List<Index> data = indexRepository.findByIssuerAndDateBetween(issuer, startDate, endDate);
+        return data.stream()
+                .map(IndexDto::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<String> findAllDistinctIssuers() {
+        return indexRepository.findDistinctIssuers();
     }
 
 }

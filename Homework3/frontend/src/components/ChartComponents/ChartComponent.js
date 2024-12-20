@@ -1,14 +1,18 @@
+// src/components/ChartComponents/ChartComponent.js
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Checkbox, FormControlLabel, TextField, Box, ButtonGroup } from '@mui/material';
+import {Button, Checkbox, FormControlLabel, TextField, Box, ButtonGroup, Autocomplete} from '@mui/material';
 import { createChart, CrosshairMode } from 'lightweight-charts';
 import ChartTypeSelector from './ChartTypeSelector';
-
-const ChartComponent = ({ data, chartType, onChartTypeChange, onRangeChange }) => {
+import { fetchIssuerData } from '../../services/api'; // Ensure correct import
+import { convertDateFormat } from "../../Utils/Helpres";
+import { parseNumber} from "../../Utils/Helpres";
+const ChartComponent = ({ data, chartType, onChartTypeChange, onRangeChange, fromDate, toDate, allSymbols  }) => {
     const chartContainerRef = useRef();
     const [showVolume, setShowVolume] = useState(false);
-    const [showMinMaxAvgLines, setShowMinMaxAvgLines] = useState(false); // New state
+    const [showMinMaxAvgLines, setShowMinMaxAvgLines] = useState(false);
     const [compareSymbol, setCompareSymbol] = useState('');
     const [compareData, setCompareData] = useState([]);
+
 
     useEffect(() => {
         if (!data || data.length === 0) return;
@@ -46,15 +50,18 @@ const ChartComponent = ({ data, chartType, onChartTypeChange, onRangeChange }) =
                 color: '#2196f3',
                 lineWidth: 2
             });
-            priceSeries.setData(data.map(d => ({ time: d.date, value: d.last_trade_price })));
+            priceSeries.setData(data.map(d => ({
+                time: convertDateFormat(d.date),
+                value: parseNumber(d.last_trade_price)
+            })));
         } else if (chartType === 'candlestick') {
             priceSeries = chart.addCandlestickSeries();
             priceSeries.setData(data.map(d => ({
-                time: d.date,
-                open: d.min + (d.max - d.min) * 0.25, // Approximation
-                high: d.max,
-                low: d.min,
-                close: d.last_trade_price
+                time: convertDateFormat(d.date),
+                open: parseNumber(d.last_trade_price), // Assuming open price is last_trade_price
+                high: parseNumber(d.max),
+                low: parseNumber(d.min),
+                close: parseNumber(d.last_trade_price)
             })));
         } else if (chartType === 'area') {
             const areaSeries = chart.addAreaSeries({
@@ -63,7 +70,10 @@ const ChartComponent = ({ data, chartType, onChartTypeChange, onRangeChange }) =
                 lineColor: '#2196f3',
                 lineWidth: 2
             });
-            areaSeries.setData(data.map(d => ({ time: d.date, value: d.last_trade_price })));
+            areaSeries.setData(data.map(d => ({
+                time: convertDateFormat(d.date),
+                value: parseNumber(d.last_trade_price)
+            })));
             priceSeries = areaSeries;
         } else {
             console.warn(`Unsupported chart type: ${chartType}`);
@@ -72,12 +82,15 @@ const ChartComponent = ({ data, chartType, onChartTypeChange, onRangeChange }) =
                 color: '#2196f3',
                 lineWidth: 2
             });
-            priceSeries.setData(data.map(d => ({ time: d.date, value: d.last_trade_price })));
+            priceSeries.setData(data.map(d => ({
+                time: convertDateFormat(d.date),
+                value: parseNumber(d.last_trade_price)
+            })));
         }
 
         if (showMinMaxAvgLines && data.length > 0) {
             // Calculate min, max, and average
-            const prices = data.map(d => d.last_trade_price);
+            const prices = data.map(d => parseNumber(d.last_trade_price));
             const minPrice = Math.min(...prices);
             const maxPrice = Math.max(...prices);
             const avgPrice = prices.reduce((sum, price) => sum + price, 0) / prices.length;
@@ -116,29 +129,22 @@ const ChartComponent = ({ data, chartType, onChartTypeChange, onRangeChange }) =
         let volumeSeries = null;
         if (showVolume) {
             volumeSeries = chart.addHistogramSeries({
-                color: '#26a69a', // Default color; will override per bar
+                color: '#26a69a',
                 priceFormat: {
                     type: 'volume',
                 },
-                priceScaleId: '', // set as an overlay by setting a blank priceScaleId
+                priceScaleId: '', // Set as an overlay
                 scaleMargins: {
-                    top: 0.7, // highest point of the series will be 70% away from the top
-                    bottom: 0,
-                },
-            });
-            // Update scale margins if needed
-            volumeSeries.priceScale().applyOptions({
-                scaleMargins: {
-                    top: 0.7,
+                    top: 0.7, // Highest point of the series will be 70% away from the top
                     bottom: 0,
                 },
             });
 
-            // Prepare volume data with dynamic colors based on %chg.
+            // Prepare volume data with dynamic colors based on % change
             const volumeData = data.map(d => ({
-                time: d.date,
-                value: d.volume,
-                color: (d['percent_change'] !== undefined && d['percent_change'].includes('-'))  ? 'red' : 'green' // Dynamic color
+                time: convertDateFormat(d.date),
+                value: parseNumber(d.volume),
+                color: d.percent_change.indexOf('-')!==-1 ? 'red' : 'green'
             }));
 
             volumeSeries.setData(volumeData);
@@ -150,7 +156,10 @@ const ChartComponent = ({ data, chartType, onChartTypeChange, onRangeChange }) =
                 color: '#FF9900',
                 lineWidth: 1,
             });
-            compSeries.setData(compareData.map(d => ({ time: d.date, value: d.last_trade_price })));
+            compSeries.setData(compareData.map(d => ({
+                time: convertDateFormat(d.date),
+                value: parseNumber(d.last_trade_price)
+            })));
         }
 
         const handleResize = () => {
@@ -163,18 +172,16 @@ const ChartComponent = ({ data, chartType, onChartTypeChange, onRangeChange }) =
             chart.remove();
         };
 
-    }, [data, chartType, showVolume, showMinMaxAvgLines, compareData]); // Updated dependency
-
+    }, [data, chartType, showVolume, showMinMaxAvgLines, compareData, parseNumber]);
 
     const handleAddCompare = async () => {
         if (!compareSymbol.trim()) return;
-        const startDate = data[0]?.date;
-        const endDate = data[data.length - 1]?.date;
-        if (!startDate || !endDate) return;
+        // Use ISO format for dates as backend expects 'yyyy-mm-dd'
+        const startDate = fromDate; // Assuming fromDate is in 'yyyy-mm-dd'
+        const endDate = toDate;     // Assuming toDate is in 'yyyy-mm-dd'
         const urlSymbol = compareSymbol.trim().toUpperCase();
         try {
-            const { fetchChartData } = await import('../../services/api');
-            const compData = await fetchChartData(urlSymbol, startDate, endDate);
+            const compData = await fetchIssuerData(urlSymbol, startDate, endDate);
             setCompareData(compData);
         } catch (error) {
             console.error('Error fetching compare data:', error);
@@ -210,12 +217,17 @@ const ChartComponent = ({ data, chartType, onChartTypeChange, onRangeChange }) =
                 />
 
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <TextField
-                        size="small"
-                        label="Compare Symbol"
+                    <Autocomplete
+                        options={allSymbols}
                         value={compareSymbol}
-                        onChange={(e) => setCompareSymbol(e.target.value)}
-                        sx={{ width: '120px' }}
+                        onChange={(event, newValue) => {
+                            setCompareSymbol(newValue || '');
+                        }}
+                        renderInput={(params) => (
+                            <TextField {...params} label="Compare Symbol" variant="outlined" size="small" />
+                        )}
+                        sx={{ width: '150px' }}
+                        freeSolo={false} // Restrict to predefined symbols
                     />
                     <Button variant="contained" size="small" onClick={handleAddCompare}>Add</Button>
                     <Button variant="outlined" size="small" onClick={handleRemoveCompare}>Remove</Button>

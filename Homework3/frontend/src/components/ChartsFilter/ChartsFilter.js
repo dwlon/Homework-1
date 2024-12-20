@@ -1,10 +1,26 @@
-import React, { useState } from 'react';
-import { Box, Button, TextField, Typography } from '@mui/material';
+// src/components/ChartsFilter/ChartsFilter.js
+import React, { useEffect, useState } from 'react';
+import { Box, Button, TextField, Typography, Autocomplete } from '@mui/material';
+import { fetchAllIssuers } from '../../services/api';
 
 const ChartsFilter = ({ fromDate, toDate, symbol, onFilter }) => {
     const [tempFrom, setTempFrom] = useState(fromDate);
     const [tempTo, setTempTo] = useState(toDate);
     const [tempSymbol, setTempSymbol] = useState(symbol);
+    const [issuerOptions, setIssuerOptions] = useState([]);
+
+    useEffect(() => {
+        // Fetch all issuers to populate the dropdown
+        const getIssuers = async () => {
+            try {
+                const issuers = await fetchAllIssuers();
+                setIssuerOptions(issuers);
+            } catch (error) {
+                console.error('Failed to fetch issuers:', error);
+            }
+        };
+        getIssuers();
+    }, []);
 
     const handleFind = () => {
         onFilter(tempFrom, tempTo, tempSymbol);
@@ -28,10 +44,16 @@ const ChartsFilter = ({ fromDate, toDate, symbol, onFilter }) => {
                     value={tempTo}
                     onChange={(e) => setTempTo(e.target.value)}
                 />
-                <TextField
-                    label="Symbol"
+                <Autocomplete
+                    options={issuerOptions}
                     value={tempSymbol}
-                    onChange={(e) => setTempSymbol(e.target.value)}
+                    onChange={(event, newValue) => {
+                        setTempSymbol(newValue || '');
+                    }}
+                    renderInput={(params) => (
+                        <TextField {...params} label="Symbol" variant="outlined" />
+                    )}
+                    freeSolo
                 />
                 <Button variant="contained" onClick={handleFind}>Find</Button>
             </Box>

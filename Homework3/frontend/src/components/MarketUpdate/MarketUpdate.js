@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import { fetchLastSevenDaysPerIssuer } from '../../services/api';
 import MarketTable from './MarketTable';
+import { parseNumber } from '../../Utils/Helpres.js';
 
 const MarketUpdate = () => {
     const [category, setCategory] = useState('Gainers');
@@ -22,11 +23,13 @@ const MarketUpdate = () => {
 
     useEffect(() => {
         fetchLastSevenDaysPerIssuer().then((data) => {
-            console.log(data)
             // Process the data into the format we need
             const processedData = Object.keys(data).map((issuerKey) => {
                 const issuerDataArray = data[issuerKey];
 
+                if (!issuerDataArray || issuerDataArray.length === 0) {
+                    return null; // Skip if no data
+                }
                 // Ensure data is sorted by date ascending (since we reversed it in the backend)
                 const sortedData = issuerDataArray.sort((a, b) =>
                     a.date.localeCompare(b.date)
@@ -59,25 +62,20 @@ const MarketUpdate = () => {
         filterData();
     }, [allData, category, searchQuery]);
 
-    const parseNumber = (str) => {
-        // Remove dots used as thousand separators, replace commas with dots for decimals
-        if (!str) return 0;
-        const normalizedStr = str.replace(/\./g, '').replace(',', '.');
-        const num = parseFloat(normalizedStr);
-        return isNaN(num) ? 0 : num;
-    };
 
     const filterData = () => {
         let result = [...allData];
 
         // Filter by category
         if (category === 'Gainers') {
-            result = result.filter((d) => d.change.indexOf('-')===-1);
+            result = result.filter((d) => d.change.indexOf('-')===-1 && d.change!=='0,00');
         } else if (category === 'Losers') {
             result = result.filter((d) => d.change.indexOf('-')!==-1);
         } else if (category === 'Top Sectors') {
             // If you have sector information, filter accordingly
             // For now, we'll skip this as the data doesn't include sectors
+            result = result.sort((a,b) => parseNumber(b.ltp) - parseNumber(a.ltp))
+            console.log(result)
         }
 
         // Filter by search query

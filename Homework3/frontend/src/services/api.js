@@ -41,6 +41,7 @@ export const fetchChartData = async (symbol, fromDate, toDate) => {
 
     for (let d = new Date(start); d <= new Date(); d.setDate(d.getDate() + 1)) {
         const dateStr = d.toISOString().slice(0,10);
+        console.log(dateStr)
         const basePrice = getRandomFloat(100, 3000);
         const max = basePrice + getRandomFloat(0, 50);
         const min = basePrice - getRandomFloat(0, 50);
@@ -112,3 +113,13 @@ export const fetchIssuerData = async (issuer, startDate, endDate) => {
     }
 };
 
+// Fetch all distinct issuers
+export const fetchAllIssuers = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/issuers`);
+        return response.data; // Array of issuer strings
+    } catch (error) {
+        console.error('Error fetching issuers:', error);
+        throw error;
+    }
+};

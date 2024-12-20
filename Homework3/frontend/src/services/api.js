@@ -123,3 +123,17 @@ export const fetchAllIssuers = async () => {
         throw error;
     }
 };
+
+
+// Fetch precomputed metrics based on issuer and period
+export const fetchPrecomputedMetrics = async (issuer, period) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/precomputed-metrics`, {
+            params: { issuer, period },
+        });
+        return response.data; // PrecomputedMetricsDto
+    } catch (error) {
+        console.error(`Error fetching precomputed metrics for ${issuer} - ${period}:`, error);
+        throw error;
+    }
+};

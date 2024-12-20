@@ -5,6 +5,7 @@ import ChartsPage from './pages/ChartsPage';
 import './styles/global.css';
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
+import TechnicalAnalysisPage from "./pages/TechnicalAnalysisPage";
 
 function App() {
     return (
@@ -13,6 +14,7 @@ function App() {
             <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/charts" element={<ChartsPage />} />
+                <Route path="/technical" element={<TechnicalAnalysisPage />} />
             </Routes>
             <Footer />
         </Router>

@@ -1,7 +1,9 @@
 package com.backend.controller;
 
 import com.backend.dto.IndexDto;
+import com.backend.dto.PrecomputedMetricsDto;
 import com.backend.service.IndexService;
+import com.backend.service.PrecomputedMetricsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -17,9 +19,11 @@ import java.util.Map;
 @CrossOrigin(origins="*")
 public class IndexController {
     IndexService indexService;
+    PrecomputedMetricsService metricsService;
 
-    public IndexController(IndexService indexService) {
+    public IndexController(IndexService indexService, PrecomputedMetricsService metricsService) {
         this.indexService = indexService;
+        this.metricsService = metricsService;
     }
 
     @GetMapping("/all")
@@ -61,5 +65,22 @@ public class IndexController {
     public ResponseEntity<List<String>> getAllIssuers() {
         List<String> issuers = indexService.findAllDistinctIssuers();
         return new ResponseEntity<>(issuers, HttpStatus.OK);
+    }
+
+    /**
+     * Endpoint to get precomputed metrics for a specific issuer and period.
+     * Example: GET /api/precomputed-metrics?issuer=ALK&period=1d
+     */
+    @GetMapping("/precomputed-metrics")
+    public ResponseEntity<PrecomputedMetricsDto> getPrecomputedMetrics(
+            @RequestParam String issuer,
+            @RequestParam String period
+    ) {
+        PrecomputedMetricsDto dto = metricsService.getMetrics(issuer, period);
+        if (dto != null) {
+            return ResponseEntity.ok(dto);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

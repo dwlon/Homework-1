@@ -1,0 +1,42 @@
+.charts-filter {
+    background: #f0f0f0;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.filter-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.filter-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.filter-item label {
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.filter-item input[type="date"],
+.filter-item input[type="text"] {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+.filter-item button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background: #000;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+.filter-item button:hover {
+    background: #333;
+}

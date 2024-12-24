@@ -39,7 +39,7 @@ public class PrecomputedMetricsServiceImpl implements PrecomputedMetricsService 
             dto.setIbl(metrics.getIbl());
             return dto;
         } else {
-            return null; // Or throw an exception based on your error handling strategy
+            return null;
         }
     }
 }

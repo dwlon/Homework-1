@@ -11,7 +11,8 @@ import {
 } from '@mui/material';
 import { fetchPrecomputedMetrics, fetchAllIssuers } from '../services/api';
 import ShowMetric from "./ShowMetric";
-
+import { makeObject, thresholds, getCounts, analyzeIndicators } from "../Utils/technicalAnalysisUtils";
+import {useLocation} from "react-router-dom";
 const TechnicalAnalysis = () => {
     const [allSymbols, setAllSymbols] = useState([]);
     const [selectedSymbol, setSelectedSymbol] = useState(null);
@@ -20,6 +21,10 @@ const TechnicalAnalysis = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [recommendation, setRecommendation] = useState('');
+
+    const location = useLocation()
+    const symbolFromState = location.state?.symbol;
+    const periodFromState = location.state?.period;
 
     useEffect(() => {
         const fetchSymbols = async () => {
@@ -32,7 +37,21 @@ const TechnicalAnalysis = () => {
             }
         };
         fetchSymbols();
-    }, []);
+
+        if (symbolFromState) {
+            setSelectedSymbol(symbolFromState);
+        }
+        if (periodFromState) {
+            setSelectedPeriod(periodFromState)
+        }
+    }, [symbolFromState]);
+
+    useEffect(() => {
+        if (selectedSymbol) {
+            handleAnalyze();
+        }
+
+    }, [selectedSymbol]);
 
     const handleAnalyze = async () => {
         if (!selectedSymbol || !selectedPeriod) {
@@ -61,179 +80,6 @@ const TechnicalAnalysis = () => {
             setLoading(false);
         }
     };
-
-    let thresholds = {
-        rsi: {overbought: 70, oversold: 30},
-        macd: {aboveSignal: true, belowSignal: false},
-        stoch: {overbought: 80, oversold: 20},
-        ao: {positive: true, negative: false},
-        williams: {overbought: -20, oversold: -80},
-        cci: {overbought: 100, oversold: -100},
-        sma_ema: {bullish: 'sma < ema', bearish: 'sma > ema'},
-        ema_sma: {bullish: 'ema < sma', bearish: 'ema > sma'},
-        wma_ema: {bullish: 'wma < ema', bearish: 'wma > ema'},
-        hma_ema: {bullish: 'hma < ema', bearish: 'hma > ema'},
-        ibl: {
-            overbought: 28000,
-            oversold: 25000,
-        },
-    };
-
-    function makeObject(metric, data, result) {
-        data[metric] = {
-            value: data[metric] ? data[metric].toFixed(2) : null,
-            "result": result
-        }
-    }
-
-    const analyzeIndicators = (data) => {
-        let score = 0;
-        const isValid = (value) => value !== null && value !== undefined;
-
-        if (isValid(data.rsi)) {
-            if (data.rsi > thresholds.rsi.overbought) {
-                score -= 1;
-                makeObject('rsi', data, 'Buy');
-
-            } else if (data.rsi < thresholds.rsi.oversold) {
-                score += 1;
-                makeObject('rsi', data, 'Sell');
-            }
-        }
-
-        if (isValid(data.macd)) {
-            if (data.macd < 0) {
-                score -= 1;
-                makeObject('macd', data, 'Buy');
-            } else if (data.macd > 0) {
-                score += 1;
-                makeObject('macd', data, 'Sell');
-            }
-        }
-
-        if (isValid(data.stoch)) {
-            if (data.stoch > thresholds.stoch.overbought) {
-                score -= 1;
-                makeObject('stoch', data, 'Buy');
-            } else if (data.stoch < thresholds.stoch.oversold) {
-                score += 1
-                makeObject('stoch', data, 'Sell');
-            }
-        }
-
-        if (isValid(data.ao)) {
-            if (data.ao > 0) {
-                score += 1;
-                makeObject('ao', data, 'Buy');
-            } else if (data.ao < 0) {
-                score -= 1;
-                makeObject('macd', data, 'Sell');
-            }
-        }
-
-        if (isValid(data.williams)) {
-            if (`data`.williams > thresholds.williams.overbought) {
-                score -= 2;
-                makeObject('williams', data, 'Buy');
-            } else if (data.williams < thresholds.williams.oversold) {
-                score += 2;
-                makeObject('williams', data, 'Sell');
-            }
-        }
-
-        if (isValid(data.cci)) {
-            if (data.cci > thresholds.cci.overbought) {
-                score -= 2;
-                makeObject('cci', data, 'Sell');
-            } else if (data.cci < thresholds.cci.oversold) {
-                score += 2;
-                makeObject('cci', data, 'Buy');
-            }
-        }
-
-        if (data.sma > data.ema) {
-            score -= 1; // Bearish
-            makeObject('sma', data, 'Buy');
-        } else if (data.sma < data.ema) {
-            score += 1; // Bullish
-            makeObject('sma', data, 'Sell');
-        }
-
-        if (isValid(data.sma) && isValid(data.ema)) {
-            if (data.ema > data.sma) {
-                score += 1; // Bullish
-                makeObject('ema', data, 'Buy');
-            } else if (data.ema < data.sma) {
-                score -= 1; // Bearish
-                makeObject('ema', data, 'Sell');
-            }
-        }
-
-        if (isValid(data.hma) && isValid(data.ema)){
-            if (data.wma > data.ema) {
-                score -= 1; // Bearish
-                makeObject('wma', data, 'Buy');
-            } else if (data.wma < data.ema) {
-                score += 1; // Bullish
-                makeObject('wma', data, 'Sell');
-            }
-        }
-
-        if (isValid(data.hma) && isValid(data.ema)){
-            if (data.hma > data.ema) {
-                score -= 1; // Bearish
-                makeObject('hma', data, 'Buy');
-            } else if (data.hma < data.ema) {
-                score += 1; // Bullish
-                makeObject('hma', data, 'Sell');
-            }
-        }
-
-        if (isValid(data.ibl)) {
-            if (data.ibl > thresholds.ibl.overbought) {
-                score -= 1;
-                makeObject('ibl', data, 'Buy');
-            } else if (data.ibl < thresholds.ibl.oversold) {
-                score += 1;
-                makeObject('ibl', data, 'Sell');
-            }
-        }
-
-        let buy = getCounts(data).Buy
-        let sell = getCounts(data).Sell
-
-        console.log(buy + " "  + sell + "= " + buy/sell)
-
-        if (buy / sell > 2.5) return 'Strong Buy';
-        if (buy / sell > 1.5) return 'Buy';
-        if (buy / sell > 0.75) return 'Hold';
-        if (buy / sell > 0.3) return 'Hold';
-        if (buy / sell > 0) return 'Sell';
-        return 'Strong Sell';
-    };
-
-    function getCounts(metrics) {
-        let count = {
-            'Buy': 0,
-            'Sell': 0,
-            'NA': 0
-        }
-
-        Object.keys(metrics).forEach(key => {
-            let result = metrics[key]?.result;
-            if (result === 'Buy') {
-                count.Buy++;
-            } else if (result === "Sell") {
-                count.Sell++;
-            } else {
-                count.NA++;
-            }
-        });
-
-        count.NA = count.NA - 4
-
-        return count
-    }
 
     return (
         <Box sx={{p: 4, backgroundColor: '#f5f5f5', borderRadius: 2, maxWidth: 800, margin: '10px auto', height: '100vh'}}>
@@ -317,7 +163,6 @@ const TechnicalAnalysis = () => {
                             <Typography textAlign={"center"} variant="h6"> { getCounts(metrics).NA } </Typography>
                         </Box>
                     </Box>
-
 
                     <Box sx={{mt: 4, textAlign: 'center'}}>
                         <Typography variant="h6">Recommendation:</Typography>

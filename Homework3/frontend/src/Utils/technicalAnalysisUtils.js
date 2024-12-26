@@ -6,12 +6,14 @@ export function makeObject(metric, data, result) {
         return;
     }
 
-    if (data[metric] === null) {
-        return;
+    let value = parseFloat(data[metric]);
+
+    if (isNaN(value)) {
+        return
     }
 
     data[metric] = {
-        value: data[metric] ? parseFloat(data[metric]).toFixed(2) : null,
+        value: value.toFixed(2),
         "result": result
     }
 }
@@ -37,6 +39,7 @@ export function getCounts(metrics) {
     let count = {
         'Buy': 0,
         'Sell': 0,
+        'Hold': 0,
         'NA': 0
     }
 
@@ -46,6 +49,8 @@ export function getCounts(metrics) {
             count.Buy++;
         } else if (result === "Sell") {
             count.Sell++;
+        } else if (result === "Hold") {
+            count.Hold++;
         } else {
             count.NA++;
         }
@@ -60,101 +65,125 @@ export const analyzeIndicators = (data) => {
     const isValid = (value) => value !== null && value !== undefined;
 
     if (isValid(data.rsi)) {
-        if (data.rsi > thresholds.rsi.overbought) {
+        if (data.rsi >= thresholds.rsi.overbought) {
             makeObject('rsi', data, 'Buy');
 
         } else if (data.rsi < thresholds.rsi.oversold) {
             makeObject('rsi', data, 'Sell');
+        } else {
+            makeObject('rsi', data, 'Hold');
         }
     }
 
     if (isValid(data.macd)) {
-        if (data.macd < 0) {
+        if (data.macd <= 0) {
             makeObject('macd', data, 'Buy');
         } else if (data.macd > 0) {
             makeObject('macd', data, 'Sell');
+        } else {
+            makeObject('macd', data, 'Hold');
         }
     }
 
     if (isValid(data.stoch)) {
-        if (data.stoch > thresholds.stoch.overbought) {
+        if (data.stoch >= thresholds.stoch.overbought) {
             makeObject('stoch', data, 'Buy');
         } else if (data.stoch < thresholds.stoch.oversold) {
             makeObject('stoch', data, 'Sell');
+        } else {
+            makeObject('stoch', data, 'Hold');
         }
     }
 
     if (isValid(data.ao)) {
-        if (data.ao > 0) {
+        if (data.ao >= 0) {
             makeObject('ao', data, 'Buy');
         } else if (data.ao < 0) {
-            makeObject('macd', data, 'Sell');
+            makeObject('ao', data, 'Sell');
+        } else {
+            makeObject('ao', data, 'Hold');
         }
     }
 
     if (isValid(data.williams)) {
-        if (`data`.williams > thresholds.williams.overbought) {
-            makeObject('williams', data, 'Buy');
-        } else if (data.williams < thresholds.williams.oversold) {
+        if (data.williams >= thresholds.williams.overbought) {
             makeObject('williams', data, 'Sell');
+        } else if (data.williams < thresholds.williams.oversold) {
+            makeObject('williams', data, 'Buy');
+        } else {
+            makeObject('williams', data, 'Hold');
         }
     }
 
     if (isValid(data.cci)) {
-        if (data.cci > thresholds.cci.overbought) {
+        if (data.cci >= thresholds.cci.overbought) {
             makeObject('cci', data, 'Sell');
         } else if (data.cci < thresholds.cci.oversold) {
             makeObject('cci', data, 'Buy');
+        } else {
+            makeObject('cci', data, 'Hold');
         }
     }
 
     if (data.sma > data.ema) {
-        makeObject('sma', data, 'Buy');
-    } else if (data.sma < data.ema) {
         makeObject('sma', data, 'Sell');
+    } else if (data.sma < data.ema) {
+        makeObject('sma', data, 'Buy');
+    } else {
+        makeObject('sma', data, 'Hold');
     }
 
     if (isValid(data.sma) && isValid(data.ema)) {
         if (data.ema > data.sma) {
-            makeObject('ema', data, 'Buy');
-        } else if (data.ema < data.sma) {
             makeObject('ema', data, 'Sell');
+        } else if (data.ema < data.sma) {
+            makeObject('ema', data, 'Buy');
+        } else {
+            makeObject('ema', data, 'Hold');
         }
     }
 
-    if (isValid(data.hma) && isValid(data.ema)){
-        if (data.wma > data.ema) {
-            makeObject('wma', data, 'Buy');
-        } else if (data.wma < data.ema) {
+
+    if (isValid(data.wma) && isValid(data.ema.value)) {
+        if (data.wma > data.ema.value) {
             makeObject('wma', data, 'Sell');
+        } else if (data.wma < data.ema.value) {
+            makeObject('wma', data, 'Buy');
+        } else {
+            makeObject('wma', data, 'Hold');
         }
     }
 
-    if (isValid(data.hma) && isValid(data.ema)){
-        if (data.hma > data.ema) {
-            makeObject('hma', data, 'Buy');
-        } else if (data.hma < data.ema) {
+    if (isValid(data.hma) && isValid(data.ema)) {
+        if (data.hma > data.ema.value) {
             makeObject('hma', data, 'Sell');
+        } else if (data.hma < data.ema.value) {
+            makeObject('hma', data, 'Buy');
+        } else {
+            makeObject('hma', data, 'Hold');
         }
     }
 
     if (isValid(data.ibl)) {
-        if (data.ibl > thresholds.ibl.overbought) {
+        if (data.ibl >= thresholds.ibl.overbought) {
             makeObject('ibl', data, 'Buy');
         } else if (data.ibl < thresholds.ibl.oversold) {
             makeObject('ibl', data, 'Sell');
+        } else {
+            makeObject('ibl', data, 'Hold');
         }
     }
 
     let buy = getCounts(data).Buy
     let sell = getCounts(data).Sell
+    let hold = getCounts(data).Hold
 
-    console.log(buy + " "  + sell + "= " + buy/sell)
+    let total = buy + sell + hold;
 
-    if (buy / sell > 2.5) return 'Strong Buy';
-    if (buy / sell > 1.5) return 'Buy';
-    if (buy / sell > 0.75) return 'Hold';
-    if (buy / sell > 0.3) return 'Hold';
-    if (buy / sell > 0) return 'Sell';
-    return 'Strong Sell';
-};
+    if (buy / total > 0.7) return 'Strong Buy';
+    if (buy / total > 0.5) return 'Buy';
+    if (buy / total > 0.3) return 'Hold';
+    if (sell / total > 0.5) return 'Sell';
+    if (sell / total > 0.7) return 'Strong Sell';
+    return "Hold"
+}

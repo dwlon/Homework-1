@@ -7,7 +7,7 @@ const ShowMetric = (props) => {
                 <Box sx={{display: 'flex', gap: 2}}>
                     <Typography>{props.value ? props.value : 'N/A'}</Typography>
                     <Maybe sx={{
-                        '--color': props.result === 'Buy' ? 'green' : props.result ? "orange" : "red"
+                        '--color': props.result === 'Buy' ? '#1976D2' : (props.result === "Sell" ? "orange" : props.result === "Hold" ? "gray" : "red")
                     }}>
                         {props.result ? props.result : 'N/A'}
                     </Maybe>

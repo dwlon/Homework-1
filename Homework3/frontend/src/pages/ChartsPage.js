@@ -151,8 +151,8 @@ const ChartsPage = () => {
                                         <Typography textAlign={"center"} variant="h6"> { metrics ? getCounts(metrics).Sell : 0 } </Typography>
                                     </Box>
                                     <Box>
-                                        <Typography variant="h7" color={'red'} fontWeight={'bold'}> NA </Typography>
-                                        <Typography textAlign={"center"} variant="h6"> { metrics ? getCounts(metrics).NA : 0 } </Typography>
+                                        <Typography variant="h7" color={'gray'} fontWeight={'bold'}> Hold </Typography>
+                                        <Typography textAlign={"center"} variant="h6"> { metrics ? getCounts(metrics).Hold : 0 } </Typography>
                                     </Box>
                                 </Box>
 

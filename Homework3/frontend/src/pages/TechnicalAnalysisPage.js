@@ -131,7 +131,7 @@ const TechnicalAnalysis = () => {
             )}
 
             {metrics && (
-                <Box sx={{mt: 4}}>
+                <Box sx={{border: '2px solid lightgray', borderRadius: '10px', padding: 3}}>
                     <Typography variant="h6" gutterBottom>
                         Indicators:
                     </Typography>
@@ -149,43 +149,52 @@ const TechnicalAnalysis = () => {
                         <ShowMetric title={"IBL:"} value={metrics?.ibl?.value} result={metrics?.ibl?.result} />
                     </Box>
 
-                    <Box sx={{ display: 'flex', flexDirection: 'row', gap: 5, justifyContent: 'center', marginTop: 5}}>
-                        <Box>
-                            <Typography variant="h6" color={'green'}> Buy </Typography>
-                            <Typography textAlign={"center"} variant="h6"> { getCounts(metrics).Buy } </Typography>
+                    <Box sx={{border: '2px solid lightgray', borderRadius: '10px', marginTop: 2, padding: 2, width: 350, justifySelf: "center"}}>
+                        <Box sx={{ display: 'flex', flexDirection: 'row', gap: 5, justifyContent: 'center', marginTop: 2}}>
+                            <Box>
+                                <Typography variant="h6" color={'#1976D2'} fontWeight={"bold"}> Buy </Typography>
+                                <Typography textAlign={"center"} variant="h6"> { getCounts(metrics).Buy } </Typography>
+                            </Box>
+                            <Box>
+                                <Typography variant="h6" color={'orange'} fontWeight={"bold"}> Sell </Typography>
+                                <Typography textAlign={"center"} variant="h6"> { getCounts(metrics).Sell } </Typography>
+                            </Box>
+                            <Box>
+                                <Typography variant="h6" color={'gray'} fontWeight={"bold"}> Hold </Typography>
+                                <Typography textAlign={"center"} variant="h6"> { getCounts(metrics).Hold } </Typography>
+                            </Box>
+                            <Box>
+                                <Typography variant="h6" color={'red'} fontWeight={"bold"}> N/A </Typography>
+                                <Typography textAlign={"center"} variant="h6"> { getCounts(metrics).NA } </Typography>
+                            </Box>
                         </Box>
-                        <Box>
-                            <Typography variant="h6" color={'orange'}> Sell </Typography>
-                            <Typography textAlign={"center"} variant="h6"> { getCounts(metrics).Sell } </Typography>
-                        </Box>
-                        <Box>
-                            <Typography variant="h6" color={'red'}> NA </Typography>
-                            <Typography textAlign={"center"} variant="h6"> { getCounts(metrics).NA } </Typography>
+
+                        <Box sx={{mt: 2, textAlign: 'center'}}>
+                            <Typography variant="h6">Recommendation:</Typography>
+                            <Typography
+                                variant="h4"
+                                sx={{
+                                    color:
+                                        recommendation === 'Strong Buy'
+                                            ? '#1976D2'
+                                            : recommendation === 'Buy'
+                                                ? '#488DCE'
+                                                : recommendation === 'Hold'
+                                                    ? 'grey'
+                                                    : recommendation === 'Sell'
+                                                        ? 'orange'
+                                                        : 'red',
+                                    fontWeight: 'bold',
+                                    mt: 1,
+                                }}
+                            >
+                                {recommendation}
+                            </Typography>
                         </Box>
                     </Box>
 
-                    <Box sx={{mt: 4, textAlign: 'center'}}>
-                        <Typography variant="h6">Recommendation:</Typography>
-                        <Typography
-                            variant="h4"
-                            sx={{
-                                color:
-                                    recommendation === 'Strong Buy'
-                                        ? 'green'
-                                        : recommendation === 'Buy'
-                                            ? 'lightgreen'
-                                            : recommendation === 'Hold'
-                                                ? 'grey'
-                                                : recommendation === 'Sell'
-                                                    ? 'orange'
-                                                    : 'red',
-                                fontWeight: 'bold',
-                                mt: 1,
-                            }}
-                        >
-                            {recommendation}
-                        </Typography>
-                    </Box>
+
+
                 </Box>
             )}
         </Box>

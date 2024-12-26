@@ -48,11 +48,14 @@ def get_db_path():
     return os.path.join(db_folder, "stock_data.db")
 
 #Filter 1
-async def get_issuer_codes(session):
-    response_text = await fetch(session, f"{BASE_URL_ISSUERS}")
-    soup = BeautifulSoup(response_text, "html.parser")
-    codes = [td.get_text(strip=True) for td in soup.find_all("td") if td.a and 'href' in td.a.attrs and td.get_text(strip=True) and td.get_text(strip=True).isalpha()]
-    return codes
+async def get_issuer_codes(conn):
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT issuer FROM issuer_links")
+    issuer_codes = [row[0] for row in cursor.fetchall()]
+
+    return issuer_codes
+
 
 #Filter 2
 def get_last_available_date(conn, issuer):
@@ -120,7 +123,7 @@ async def main():
 
     async with aiohttp.ClientSession() as session:
         conn = sqlite3.connect(get_db_path())
-        issuer_codes = await get_issuer_codes(session)
+        issuer_codes = await get_issuer_codes(conn)
         last_dates = get_last_available_dates(conn, issuer_codes)
         conn.close()
 

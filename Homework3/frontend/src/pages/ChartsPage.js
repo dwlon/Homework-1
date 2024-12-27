@@ -194,7 +194,7 @@ const ChartsPage = () => {
 
                         <Box sx={{display: "flex", flexDirection:"row"}}>
                             <Box sx={{display: "flex", flexDirection:"row"}}>
-                                <Box sx={{display:'flex', flexDirection:'row'}}>
+                                <Box sx={{display:'flex', flexDirection:"row"}}>
                                     <Box sx={{border: '2px solid lightgray', borderRadius: '10px', padding: 3, display: "flex", justifyContent: "center", flexDirection:"column"}}>
                                         <Box>
                                             <Typography sx={{textAlign: 'center', fontWeight: 'bold', marginBottom: 1}}> Technicals </Typography>
@@ -214,7 +214,7 @@ const ChartsPage = () => {
                                             </Box>
                                         </Box>
 
-                                        <Box sx={{mt: 4, textAlign: 'center', marginTop: 1}}>
+                                        <Box sx={{mt: 1, textAlign: 'center'}}>
                                             <Typography variant="h7">Recommendation:</Typography>
                                             <Typography
                                                 variant="h5"
@@ -245,7 +245,7 @@ const ChartsPage = () => {
 
 
 
-                                    <Box sx={{display: 'flex', flexDirection: 'column', justifyContent:'space-around', marginLeft: 1.5, border: '2px solid lightgray', borderRadius: '10px', padding: 3, textAlign: 'center'}}>
+                                    <Box sx={{display: 'flex', flexDirection: 'column', justifyContent:'space-around', border: '2px solid lightgray', borderRadius: '10px', padding: 3, textAlign: 'center', ml: 1.5}}>
                                         <Button
                                             sx={{color:'black',  backgroundColor: period === '1d' ? 'lightgray' : 'transparent'}}
                                             onClick={ () => { setPeriod('1d')}}
@@ -262,7 +262,7 @@ const ChartsPage = () => {
                                 </Box>
                             </Box>
 
-                            <Box sx={{display: "flex", flexDirection: "column", ml: 2}}>
+                            <Box sx={{display: "flex", flexDirection: "column", ml: 4}}>
                                 <Box sx={{border: '2px solid lightgray', borderRadius: '10px', padding: 3, '&:hover': {
                                         backgroundColor: '#f2f2f2',
                                         cursor: 'pointer',

@@ -10,7 +10,7 @@ import {
     Alert,
 } from '@mui/material';
 import { fetchPrecomputedMetrics, fetchAllIssuers } from '../services/api';
-import ShowMetric from "./ShowMetric";
+import ShowMetric from "../components/ShowMetric";
 import { makeObject, thresholds, getCounts, analyzeIndicators } from "../Utils/technicalAnalysisUtils";
 import {useLocation} from "react-router-dom";
 const TechnicalAnalysis = () => {

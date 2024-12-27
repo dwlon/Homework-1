@@ -141,6 +141,8 @@ export const analyzeIndicators = (data) => {
         } else {
             makeObject('ema', data, 'Hold');
         }
+    } else {
+        makeObject('ema', data, 'Hold');
     }
 
 

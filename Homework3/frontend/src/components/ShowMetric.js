@@ -19,5 +19,5 @@ export default  ShowMetric
 
 const Maybe = styled(Typography)({
     'color': "var(--color)",
-    'font-weight': 'bold'
+    'fontWeight': 'bold'
 })

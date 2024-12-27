@@ -4,13 +4,17 @@ import {Box, Button, Typography} from '@mui/material';
 import ChartsFilter from '../components/ChartsFilter/ChartsFilter';
 import ChartComponent from '../components/ChartComponents/ChartComponent';
 import HistoricalTable from '../components/HistoricalTable/HistoricalTable';
-
-import {fetchIssuerData, fetchAllIssuers, fetchPrecomputedMetrics} from '../services/api';
+import {
+    fetchIssuerData,
+    fetchAllIssuers,
+    fetchPrecomputedMetrics,
+    fetchPerformanceMetrics,
+    fetchNewsSentiments
+} from '../services/api';
 import { makeObject, thresholds, getCounts, analyzeIndicators } from "../Utils/technicalAnalysisUtils";
 import Link from '@mui/material/Link';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 const ChartsPage = () => {
-    // Default values: last 30 days and symbol "ALK"
     const today = new Date();
     const fromDateDefault = new Date(today);
     fromDateDefault.setDate(fromDateDefault.getDate() - (365*10));
@@ -19,32 +23,54 @@ const ChartsPage = () => {
     const [toDate, setToDate] = useState(today.toISOString().slice(0, 10));
     const [symbol, setSymbol] = useState("ALK");
     const [chartData, setChartData] = useState([]);
-    const [chartType, setChartType] = useState('line'); // 'line', 'candlestick', 'area'
-    const [allSymbols, setAllSymbols] = useState([]); // To store all symbols for the dropdown
-
+    const [allSymbols, setAllSymbols] = useState([]);
+    const [chartType, setChartType] = useState('line');
     const [metrics, setMetrics] = useState(null);
     const [recommendation, setRecommendation] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [period, setPeriod] = useState('1d');
+
+    const [performanceMetrics, setPerformanceMetrics] = useState(null);
+    const [newsSentiments, setNewsSentiments] = useState(null);
     const handleAnalyze = async () => {
         if (!symbol) {
-            setError('Please select both symbol.');
+            setError('Please select both symbol and period.');
             return;
         }
         setLoading(true);
         setMetrics(null);
+        setPerformanceMetrics(null);
+        setNewsSentiments(null);
         setRecommendation('');
+
 
         try {
             const data = await fetchPrecomputedMetrics(symbol, period);
-            console.log("Received data:", data);
+            const performanceData = await fetchPerformanceMetrics(symbol)
+            const news = await fetchNewsSentiments(symbol)
             const rec = analyzeIndicators(data);
+
+
+            console.log(news)
+
             if (data) {
                 setMetrics(data);
                 setRecommendation(rec);
             } else {
                 setError('No metrics found for the selected symbol and period.');
+            }
+
+            if (performanceData) {
+                setPerformanceMetrics(performanceData)
+            } else {
+                setError('No performance metrics were found.')
+            }
+
+            if (news) {
+                setNewsSentiments(news)
+            } else {
+                setError('No news was found.')
             }
         } catch (err) {
             console.error('Error fetching metrics:', err);
@@ -118,8 +144,38 @@ const ChartsPage = () => {
 
     let navigate = useNavigate()
 
-    const handleNavigate = () => {
+    const navigateTechnical = () => {
         navigate('/technical', { state: { symbol, period } });
+    }
+
+    const navigateFundamental = () => {
+        navigate('/fundamental', { state: { symbol} });
+    }
+
+    function getSentiment() {
+        let positive = 0;
+        let negative = 0;
+        let neutral = 0;
+
+        if (newsSentiments && Array.isArray(newsSentiments)) {
+            newsSentiments.forEach((news) => {
+                if (news.sentiment === "Positive news") {
+                    positive++;
+                } else if (news.sentiment === "Negative news") {
+                    negative++;
+                } else {
+                    neutral++;
+                }
+            });
+        }
+
+        if (neutral > positive && neutral > negative) {
+            return 0;
+        } else if (positive > negative && neutral) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
     return (
@@ -136,67 +192,100 @@ const ChartsPage = () => {
                             onClick={handleAnalyze}
                         />
 
-                        <Box sx={{display:'flex', flexDirection:'row'}}>
-                            <Box sx={{border: '2px solid lightgray', borderRadius: '10px', padding: 3}}>
-                                <Box>
-                                    <Typography sx={{textAlign: 'center', fontWeight: 'bold', marginBottom: 1}}> Technicals </Typography>
-                                </Box>
-                                <Box sx={{ display: 'flex', flexDirection: 'row', gap: 5, justifyContent: 'center'}}>
-                                    <Box>
-                                        <Typography variant="h7" color={'#1976D2'} fontWeight={'bold'}> Buy </Typography>
-                                        <Typography textAlign={"center"} variant="h6"> { metrics ? getCounts(metrics).Buy : 0 } </Typography>
-                                    </Box>
-                                    <Box>
-                                        <Typography variant="h7" color={'orange'} fontWeight={'bold'}> Sell </Typography>
-                                        <Typography textAlign={"center"} variant="h6"> { metrics ? getCounts(metrics).Sell : 0 } </Typography>
-                                    </Box>
-                                    <Box>
-                                        <Typography variant="h7" color={'gray'} fontWeight={'bold'}> Hold </Typography>
-                                        <Typography textAlign={"center"} variant="h6"> { metrics ? getCounts(metrics).Hold : 0 } </Typography>
-                                    </Box>
-                                </Box>
+                        <Box sx={{display: "flex", flexDirection:"row"}}>
+                            <Box sx={{display: "flex", flexDirection:"row"}}>
+                                <Box sx={{display:'flex', flexDirection:'row'}}>
+                                    <Box sx={{border: '2px solid lightgray', borderRadius: '10px', padding: 3, display: "flex", justifyContent: "center", flexDirection:"column"}}>
+                                        <Box>
+                                            <Typography sx={{textAlign: 'center', fontWeight: 'bold', marginBottom: 1}}> Technicals </Typography>
+                                        </Box>
+                                        <Box sx={{ display: 'flex', flexDirection: 'row', gap: 5, justifyContent: 'center'}}>
+                                            <Box>
+                                                <Typography variant="h7" color={'#1976D2'} fontWeight={'bold'}> Buy </Typography>
+                                                <Typography textAlign={"center"} variant="h6"> { metrics ? getCounts(metrics).Buy : 0 } </Typography>
+                                            </Box>
+                                            <Box>
+                                                <Typography variant="h7" color={'orange'} fontWeight={'bold'}> Sell </Typography>
+                                                <Typography textAlign={"center"} variant="h6"> { metrics ? getCounts(metrics).Sell : 0 } </Typography>
+                                            </Box>
+                                            <Box>
+                                                <Typography variant="h7" color={'gray'} fontWeight={'bold'}> Hold </Typography>
+                                                <Typography textAlign={"center"} variant="h6"> { metrics ? getCounts(metrics).Hold : 0 } </Typography>
+                                            </Box>
+                                        </Box>
 
-                                <Box sx={{mt: 4, textAlign: 'center', marginTop: 1}}>
-                                    <Typography variant="h7">Recommendation:</Typography>
-                                    <Typography
-                                        variant="h5"
-                                        sx={{
-                                            color:
-                                                recommendation === 'Strong Buy'
-                                                    ? '#1976D2'
-                                                    : recommendation === 'Buy'
-                                                        ? '#488DCE'
-                                                        : recommendation === 'Hold'
-                                                            ? 'grey'
-                                                            : recommendation === 'Sell'
-                                                                ? 'orange'
-                                                                : 'red',
-                                            fontWeight: 'bold',
-                                            mt: 1,
-                                        }}
-                                    >
-                                        {recommendation}
+                                        <Box sx={{mt: 4, textAlign: 'center', marginTop: 1}}>
+                                            <Typography variant="h7">Recommendation:</Typography>
+                                            <Typography
+                                                variant="h5"
+                                                sx={{
+                                                    color:
+                                                        recommendation === 'Strong Buy'
+                                                            ? '#1976D2'
+                                                            : recommendation === 'Buy'
+                                                                ? '#488DCE'
+                                                                : recommendation === 'Hold'
+                                                                    ? 'grey'
+                                                                    : recommendation === 'Sell'
+                                                                        ? 'orange'
+                                                                        : 'red',
+                                                    fontWeight: 'bold',
+                                                    mt: 1,
+                                                }}
+                                            >
+                                                {recommendation}
+                                            </Typography>
+                                        </Box>
+
+
+                                        <Button sx={{ color: 'white', background: '#212121', borderRadius: 10, mt: 1}} onClick={navigateTechnical}>
+                                            More..
+                                        </Button>
+                                    </Box>
+
+
+
+                                    <Box sx={{display: 'flex', flexDirection: 'column', justifyContent:'space-around', marginLeft: 1.5, border: '2px solid lightgray', borderRadius: '10px', padding: 3, textAlign: 'center'}}>
+                                        <Button
+                                            sx={{color:'black',  backgroundColor: period === '1d' ? 'lightgray' : 'transparent'}}
+                                            onClick={ () => { setPeriod('1d')}}
+                                        >
+                                            1d
+                                        </Button>
+                                        <Button onClick={()=> {setPeriod('1w')}} sx={{color:'black',  backgroundColor: period === '1w' ? 'lightgray' : 'transparent'}}>
+                                            1w
+                                        </Button>
+                                        <Button onClick={()=> {setPeriod('1m')}} sx={{color:'black',  backgroundColor: period === '1m' ? 'lightgray' : 'transparent'}}>
+                                            1m
+                                        </Button>
+                                    </Box>
+                                </Box>
+                            </Box>
+
+                            <Box sx={{display: "flex", flexDirection: "column", ml: 2}}>
+                                <Box sx={{border: '2px solid lightgray', borderRadius: '10px', padding: 3, '&:hover': {
+                                        backgroundColor: '#f2f2f2',
+                                        cursor: 'pointer',
+                                    }}} onClick={navigateFundamental}>
+                                    <Typography sx={{textAlign: 'center', fontWeight: 'bold', marginBottom: 2}}> Performance Metrics </Typography>
+                                    <Typography variant="h6" sx={{fontWeight: "bold", textAlign: "center"}}>
+                                        Overall Performance: <Typography variant="h6" sx={{textAlign:"Center", fontWeight:"bold", color: performanceMetrics?.performance === 'Good' || performanceMetrics?.performance === 'Excellent' ? '#1976D2' : (performanceMetrics?.performance === "Poor" ? "orange" : performanceMetrics?.performance === "Neutral" ? "gray" : "red") }}> {performanceMetrics?.performance} </Typography>
+                                    </Typography>
+                                </Box>
+                                <Box sx={{border: '2px solid lightgray', borderRadius: '10px', padding: 3, '&:hover': {
+                                        backgroundColor: '#f2f2f2',
+                                        cursor: 'pointer',
+                                    }}} onClick={navigateFundamental}>
+                                    <Typography sx={{textAlign: 'center', fontWeight: 'bold', marginBottom: 1}}> News Sentiment </Typography>
+                                    <Typography variant="h6" sx={{fontWeight: "bold", textAlign: "center"}}>
+                                        Overall Sentiment: <Typography variant="h6" sx={{textAlign:"Center", fontWeight:"bold", color: getSentiment() > 0 ? "#1976D2" : (getSentiment() < 0 ? "orange" : "gray") }}> { getSentiment() > 0 ? "Positive" : (getSentiment() < 0 ? "Negative" : "Neutral") } </Typography>
                                     </Typography>
                                 </Box>
                             </Box>
-                            <Box sx={{display: 'flex', flexDirection: 'column', justifyContent:'space-around', marginLeft: 1.5, border: '2px solid lightgray', borderRadius: '10px', padding: 3, textAlign: 'center'}}>
-                                <Button
-                                    sx={{color:'black',  backgroundColor: period === '1d' ? 'lightgray' : 'transparent'}}
-                                    onClick={ () => { setPeriod('1d')}}
-                                >
-                                    1d
-                                </Button>
-                                <Button onClick={()=> {setPeriod('1w')}} sx={{color:'black',  backgroundColor: period === '1w' ? 'lightgray' : 'transparent'}}>
-                                    1w
-                                </Button>
-                                <Button onClick={()=> {setPeriod('1m')}} sx={{color:'black',  backgroundColor: period === '1m' ? 'lightgray' : 'transparent'}}>
-                                    1m
-                                </Button>
-                                <Button sx={{ color: 'white', background: '#212121', borderRadius: '40%', paddingLeft: 2, paddingRight: 2 }} onClick={handleNavigate}>
-                                    More..
-                                </Button>
-                            </Box>
+
                         </Box>
+
+
                         </Box>
 
                     <Box className="chart-section" sx={{ mt: 5 }}>

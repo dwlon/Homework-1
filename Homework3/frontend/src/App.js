@@ -6,6 +6,7 @@ import './styles/global.css';
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
 import TechnicalAnalysisPage from "./pages/TechnicalAnalysisPage";
+import FundamentalAnalysisPage from "./pages/FundamentalAnalysisPage";
 
 function App() {
     return (
@@ -15,6 +16,7 @@ function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/charts" element={<ChartsPage />} />
                 <Route path="/technical" element={<TechnicalAnalysisPage />} />
+                <Route path="/fundamental" element={<FundamentalAnalysisPage />}/>
             </Routes>
             <Footer />
         </Router>

@@ -150,7 +150,7 @@ def analyze_performance(data):
 
 def main():
     conn = sqlite3.connect(DB_PATH)
-    initialize_table(conn)
+    conn = initialize_table(conn)
 
     issuers = pd.read_sql_query("SELECT * FROM issuer_links", conn)['issuer'].tolist()
     links = pd.read_sql_query("SELECT * FROM issuer_links", conn)['link'].tolist()

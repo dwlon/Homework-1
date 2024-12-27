@@ -1,8 +1,12 @@
 package com.backend.controller;
 
 import com.backend.dto.IndexDto;
+import com.backend.dto.NewsSentimentsDto;
+import com.backend.dto.PerformanceMetricsDto;
 import com.backend.dto.PrecomputedMetricsDto;
 import com.backend.service.IndexService;
+import com.backend.service.NewsSentimentsService;
+import com.backend.service.PerformanceMetricsService;
 import com.backend.service.PrecomputedMetricsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,10 +24,14 @@ import java.util.Map;
 public class IndexController {
     IndexService indexService;
     PrecomputedMetricsService metricsService;
+    PerformanceMetricsService performanceMetricsService;
+    NewsSentimentsService newsSentimentsService;
 
-    public IndexController(IndexService indexService, PrecomputedMetricsService metricsService) {
+    public IndexController(IndexService indexService, PrecomputedMetricsService metricsService, PerformanceMetricsService performanceMetricsService, NewsSentimentsService newsSentimentsService) {
         this.indexService = indexService;
         this.metricsService = metricsService;
+        this.performanceMetricsService = performanceMetricsService;
+        this.newsSentimentsService = newsSentimentsService;
     }
 
     @GetMapping("/all")
@@ -79,6 +87,30 @@ public class IndexController {
         PrecomputedMetricsDto dto = metricsService.getMetrics(issuer, period);
         if (dto != null) {
             return ResponseEntity.ok(dto);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/performance-metrics")
+    public ResponseEntity<PerformanceMetricsDto> getPerformanceMetrics(
+            @RequestParam String issuer
+    ) {
+        PerformanceMetricsDto dto = performanceMetricsService.getPerformanceMetrics(issuer);
+        if (dto != null) {
+            return ResponseEntity.ok(dto);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/news-sentiments")
+    public ResponseEntity<List<NewsSentimentsDto>> getNewsSentiments(
+            @RequestParam String issuer
+    ) {
+        List<NewsSentimentsDto> dtos = newsSentimentsService.getNewsSentiments(issuer);
+        if (!dtos.isEmpty()) {
+            return ResponseEntity.ok(dtos);
         } else {
             return ResponseEntity.notFound().build();
         }

@@ -137,3 +137,23 @@ export const fetchPrecomputedMetrics = async (issuer, period) => {
         throw error;
     }
 };
+
+export const fetchPerformanceMetrics = async  (issuer) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/performance-metrics`, {params: {issuer}});
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching performance metrics for ${issuer}`, error);
+        throw error;
+    }
+}
+
+export const fetchNewsSentiments = async  (issuer) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/news-sentiments`, {params: {issuer}});
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching news-sentiments for ${issuer}`, error);
+        throw error;
+    }
+}

@@ -17,28 +17,23 @@ const MarketUpdate = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [allData, setAllData] = useState([]);
 
-    // Pagination states
     const [page, setPage] = useState(0);
-    const rowsPerPage = 4; // Fixed to 4 rows per page
+    const rowsPerPage = 4;
 
     useEffect(() => {
         fetchLastSevenDaysPerIssuer().then((data) => {
-            // Process the data into the format we need
             const processedData = Object.keys(data).map((issuerKey) => {
                 const issuerDataArray = data[issuerKey];
 
                 if (!issuerDataArray || issuerDataArray.length === 0) {
-                    return null; // Skip if no data
+                    return null;
                 }
-                // Ensure data is sorted by date ascending (since we reversed it in the backend)
                 const sortedData = issuerDataArray.sort((a, b) =>
                     a.date.localeCompare(b.date)
                 );
 
-                // Get the most recent data point
                 const latestDataPoint = sortedData[sortedData.length - 1];
 
-                // Extract the last trade prices for the last 7 days
                 const last7DaysPrices = sortedData.map((d) => {
                         return parseNumber(d.last_trade_price)
                     }
@@ -48,7 +43,7 @@ const MarketUpdate = () => {
                 return {
                     symbol: issuerKey + "",
                     ltp: latestDataPoint.last_trade_price + "",
-                    change: latestDataPoint.percent_change + "", // Convert percentage to decimal
+                    change: latestDataPoint.percent_change + "",
                     quantity: latestDataPoint.volume + "",
                     last7Days: last7DaysPrices,
                 };
@@ -66,34 +61,28 @@ const MarketUpdate = () => {
     const filterData = () => {
         let result = [...allData];
 
-        // Filter by category
         if (category === 'Gainers') {
             result = result.filter((d) => d.change.indexOf('-')===-1 && d.change!=='0,00');
         } else if (category === 'Losers') {
             result = result.filter((d) => d.change.indexOf('-')!==-1);
         } else if (category === 'Top Sectors') {
-            // If you have sector information, filter accordingly
-            // For now, we'll skip this as the data doesn't include sectors
             result = result.sort((a,b) => parseNumber(b.ltp) - parseNumber(a.ltp))
             console.log(result)
         }
 
-        // Filter by search query
         if (searchQuery.trim() !== '') {
             const q = searchQuery.toLowerCase();
             result = result.filter((d) => d.symbol.toLowerCase().includes(q));
         }
 
         setFilteredData(result);
-        setPage(0); // Reset to first page whenever data changes
+        setPage(0);
     };
 
-    // Handle page change
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
     };
 
-    // Calculate the rows to display on the current page
     const paginatedData = filteredData.slice(
         page * rowsPerPage,
         page * rowsPerPage + rowsPerPage
@@ -107,7 +96,7 @@ const MarketUpdate = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                height: '100vh',
+                height: '60vh',
             }}
         >
             <Box
@@ -167,7 +156,6 @@ const MarketUpdate = () => {
                     </Box>
                 </Box>
 
-                {/* Pass necessary props to MarketTable */}
                 <MarketTable
                     data={paginatedData}
                     count={filteredData.length}

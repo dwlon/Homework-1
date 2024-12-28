@@ -7,8 +7,8 @@ const HomePage = () => {
     return (
         <div className="homepage-container">
             <HeroSection />
-            <AISection />
             <MarketUpdate />
+            <AISection />
         </div>
     );
 };

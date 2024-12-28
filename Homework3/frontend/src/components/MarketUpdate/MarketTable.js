@@ -138,7 +138,7 @@ const MarketTable = ({ data, count, page, rowsPerPage, handleChangePage }) => {
                 page={page}
                 onPageChange={handleChangePage}
                 rowsPerPage={rowsPerPage}
-                rowsPerPageOptions={[]} // Hide the rows per page selector
+                rowsPerPageOptions={[]}
                 sx={{ float: 'right' }}
             />
         </Box>

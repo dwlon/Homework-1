@@ -10,7 +10,6 @@ const ChartsFilter = ({ fromDate, toDate, symbol, onFilter }) => {
     const [issuerOptions, setIssuerOptions] = useState([]);
 
     useEffect(() => {
-        // Fetch all issuers to populate the dropdown
         const getIssuers = async () => {
             try {
                 const issuers = await fetchAllIssuers();

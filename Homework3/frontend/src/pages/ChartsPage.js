@@ -245,7 +245,7 @@ const ChartsPage = () => {
 
 
 
-                                    <Box sx={{display: 'flex', flexDirection: 'column', justifyContent:'space-around', border: '2px solid lightgray', borderRadius: '10px', padding: 3, textAlign: 'center', ml: 1.5}}>
+                                    <Box sx={{display: 'flex', flexDirection: 'column', justifyContent:'space-around', border: '2px solid lightgray', borderRadius: '10px', padding: 2.3, textAlign: 'center', ml: 1.5}}>
                                         <Button
                                             sx={{color:'black',  backgroundColor: period === '1d' ? 'lightgray' : 'transparent'}}
                                             onClick={ () => { setPeriod('1d')}}
@@ -263,7 +263,7 @@ const ChartsPage = () => {
                             </Box>
 
                             <Box sx={{display: "flex", flexDirection: "column", ml: 4}}>
-                                <Box sx={{border: '2px solid lightgray', borderRadius: '10px', padding: 3, '&:hover': {
+                                <Box sx={{border: '2px solid lightgray', mb: 1, borderRadius: '10px', padding: 3, '&:hover': {
                                         backgroundColor: '#f2f2f2',
                                         cursor: 'pointer',
                                     }}} onClick={navigateFundamental}>

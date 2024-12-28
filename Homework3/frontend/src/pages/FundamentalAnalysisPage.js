@@ -226,12 +226,12 @@ const FundamentalAnalysis = () => {
                                 />
                                 <ShowPerformanceMetric
                                     title={"Debt/Equity:"}
-                                    value={performanceMetrics?.debt_equity23.toFixed(2) + "%"}
+                                    value={performanceMetrics?.debt_equity23.toFixed(2)}
                                     performance={evaluate("debt_equity", performanceMetrics?.debt_equity23)}
                                 />
                                 <ShowPerformanceMetric
                                     title={"PE Ratio:"}
-                                    value={performanceMetrics?.pe_ratio23.toFixed(2) + "%"}
+                                    value={performanceMetrics?.pe_ratio23.toFixed(2)}
                                     performance={evaluate("pe_ratio", performanceMetrics?.pe_ratio23)}
                                 />
                             </Box>
@@ -262,7 +262,7 @@ const FundamentalAnalysis = () => {
                                 />
                                 <ShowPerformanceMetric
                                     title={"Debt/Equity:"}
-                                    value={performanceMetrics?.debt_equity22.toFixed(2) + "%"}
+                                    value={performanceMetrics?.debt_equity22.toFixed(2)}
                                     performance={evaluate("debt_equity", performanceMetrics?.debt_equity22)}
                                 />
                             </Box>

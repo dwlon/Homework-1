@@ -375,7 +375,7 @@ const FundamentalAnalysis = () => {
                                                             rel="noopener noreferrer"
                                                             style={{ textDecoration: 'none', color: 'inherit' }}
                                                         >
-                                                            {news.title === " " ? "Untitled" : news.title}
+                                                            {news.title === " " ? "Untitled" : news.title.split('.pdf')[0] }
                                                         </a>
                                                     </Typography>
                                                 </Box>

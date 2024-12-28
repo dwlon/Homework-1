@@ -110,6 +110,9 @@ def extract_news(article_links, dates, issuer, conn):
                 temp = paragraph_text
                 title = temp.strip().split('\n')[0]
 
+                if title.startswith("На оваа веб"):
+                    continue
+
                 if cursor.fetchone():
                     print(f"Title '{title}' already exists in the database. Skipping...")
                     continue

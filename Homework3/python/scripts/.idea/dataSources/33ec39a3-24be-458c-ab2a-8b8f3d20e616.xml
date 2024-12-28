@@ -499,7 +499,7 @@
     </routine>
     <schema id="191" parent="1" name="main">
       <Current>1</Current>
-      <LastIntrospectionLocalTimestamp>2024-12-14.15:39:56</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2024-12-28.15:18:27</LastIntrospectionLocalTimestamp>
     </schema>
     <argument id="192" parent="16">
       <ArgumentDirection>R</ArgumentDirection>
@@ -1590,72 +1590,158 @@
     <argument id="554" parent="190">
       <Position>1</Position>
     </argument>
-    <table id="555" parent="191" name="precomputed_metrics"/>
-    <table id="556" parent="191" name="sqlite_master">
+    <table id="555" parent="191" name="issuer_links"/>
+    <table id="556" parent="191" name="performance_metrics"/>
+    <table id="557" parent="191" name="precomputed_metrics"/>
+    <table id="558" parent="191" name="sqlite_master">
       <System>1</System>
     </table>
-    <table id="557" parent="191" name="stock_data"/>
-    <column id="558" parent="555" name="issuer">
+    <table id="559" parent="191" name="stock_data"/>
+    <column id="560" parent="555" name="issuer">
       <Position>1</Position>
       <StoredType>TEXT|0s</StoredType>
     </column>
-    <column id="559" parent="555" name="period">
+    <column id="561" parent="555" name="link">
       <Position>2</Position>
       <StoredType>TEXT|0s</StoredType>
     </column>
-    <column id="560" parent="555" name="start_date">
+    <index id="562" parent="555" name="sqlite_autoindex_issuer_links_1">
+      <ColNames>issuer</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <Unique>1</Unique>
+    </index>
+    <key id="563" parent="555">
+      <ColNames>issuer</ColNames>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>sqlite_autoindex_issuer_links_1</UnderlyingIndexName>
+    </key>
+    <column id="564" parent="556" name="issuer">
+      <Position>1</Position>
+      <StoredType>TEXT|0s</StoredType>
+    </column>
+    <column id="565" parent="556" name="link">
+      <Position>2</Position>
+      <StoredType>TEXT|0s</StoredType>
+    </column>
+    <column id="566" parent="556" name="growth23v22">
       <Position>3</Position>
-      <StoredType>TEXT|0s</StoredType>
+      <StoredType>REAL|0s</StoredType>
     </column>
-    <column id="561" parent="555" name="end_date">
+    <column id="567" parent="556" name="growth22v21">
       <Position>4</Position>
-      <StoredType>TEXT|0s</StoredType>
+      <StoredType>REAL|0s</StoredType>
     </column>
-    <column id="562" parent="555" name="rsi">
+    <column id="568" parent="556" name="operating_margin23">
       <Position>5</Position>
       <StoredType>REAL|0s</StoredType>
     </column>
-    <column id="563" parent="555" name="macd">
+    <column id="569" parent="556" name="operating_margin22">
       <Position>6</Position>
       <StoredType>REAL|0s</StoredType>
     </column>
-    <column id="564" parent="555" name="stoch">
+    <column id="570" parent="556" name="net_margin23">
       <Position>7</Position>
       <StoredType>REAL|0s</StoredType>
     </column>
-    <column id="565" parent="555" name="ao">
+    <column id="571" parent="556" name="net_margin22">
       <Position>8</Position>
       <StoredType>REAL|0s</StoredType>
     </column>
-    <column id="566" parent="555" name="williams">
+    <column id="572" parent="556" name="roe23">
       <Position>9</Position>
       <StoredType>REAL|0s</StoredType>
     </column>
-    <column id="567" parent="555" name="cci">
+    <column id="573" parent="556" name="roe22">
       <Position>10</Position>
       <StoredType>REAL|0s</StoredType>
     </column>
-    <column id="568" parent="555" name="sma">
+    <column id="574" parent="556" name="debt_equity23">
       <Position>11</Position>
       <StoredType>REAL|0s</StoredType>
     </column>
-    <column id="569" parent="555" name="ema">
+    <column id="575" parent="556" name="debt_equity22">
       <Position>12</Position>
       <StoredType>REAL|0s</StoredType>
     </column>
-    <column id="570" parent="555" name="wma">
+    <column id="576" parent="556" name="pe_ratio23">
       <Position>13</Position>
       <StoredType>REAL|0s</StoredType>
     </column>
-    <column id="571" parent="555" name="hma">
+    <column id="577" parent="556" name="performance">
+      <Position>14</Position>
+      <StoredType>TEXT|0s</StoredType>
+    </column>
+    <index id="578" parent="556" name="sqlite_autoindex_performance_metrics_1">
+      <ColNames>issuer</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <Unique>1</Unique>
+    </index>
+    <key id="579" parent="556">
+      <ColNames>issuer</ColNames>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>sqlite_autoindex_performance_metrics_1</UnderlyingIndexName>
+    </key>
+    <column id="580" parent="557" name="issuer">
+      <Position>1</Position>
+      <StoredType>TEXT|0s</StoredType>
+    </column>
+    <column id="581" parent="557" name="period">
+      <Position>2</Position>
+      <StoredType>TEXT|0s</StoredType>
+    </column>
+    <column id="582" parent="557" name="start_date">
+      <Position>3</Position>
+      <StoredType>TEXT|0s</StoredType>
+    </column>
+    <column id="583" parent="557" name="end_date">
+      <Position>4</Position>
+      <StoredType>TEXT|0s</StoredType>
+    </column>
+    <column id="584" parent="557" name="rsi">
+      <Position>5</Position>
+      <StoredType>REAL|0s</StoredType>
+    </column>
+    <column id="585" parent="557" name="macd">
+      <Position>6</Position>
+      <StoredType>REAL|0s</StoredType>
+    </column>
+    <column id="586" parent="557" name="stoch">
+      <Position>7</Position>
+      <StoredType>REAL|0s</StoredType>
+    </column>
+    <column id="587" parent="557" name="ao">
+      <Position>8</Position>
+      <StoredType>REAL|0s</StoredType>
+    </column>
+    <column id="588" parent="557" name="williams">
+      <Position>9</Position>
+      <StoredType>REAL|0s</StoredType>
+    </column>
+    <column id="589" parent="557" name="cci">
+      <Position>10</Position>
+      <StoredType>REAL|0s</StoredType>
+    </column>
+    <column id="590" parent="557" name="sma">
+      <Position>11</Position>
+      <StoredType>REAL|0s</StoredType>
+    </column>
+    <column id="591" parent="557" name="ema">
+      <Position>12</Position>
+      <StoredType>REAL|0s</StoredType>
+    </column>
+    <column id="592" parent="557" name="wma">
+      <Position>13</Position>
+      <StoredType>REAL|0s</StoredType>
+    </column>
+    <column id="593" parent="557" name="hma">
       <Position>14</Position>
       <StoredType>REAL|0s</StoredType>
     </column>
-    <column id="572" parent="555" name="ibl">
+    <column id="594" parent="557" name="ibl">
       <Position>15</Position>
       <StoredType>REAL|0s</StoredType>
     </column>
-    <index id="573" parent="555" name="sqlite_autoindex_precomputed_metrics_1">
+    <index id="595" parent="557" name="sqlite_autoindex_precomputed_metrics_1">
       <ColNames>issuer
 period
 start_date
@@ -1663,7 +1749,7 @@ end_date</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <Unique>1</Unique>
     </index>
-    <key id="574" parent="555">
+    <key id="596" parent="557">
       <ColNames>issuer
 period
 start_date
@@ -1671,73 +1757,73 @@ end_date</ColNames>
       <Primary>1</Primary>
       <UnderlyingIndexName>sqlite_autoindex_precomputed_metrics_1</UnderlyingIndexName>
     </key>
-    <column id="575" parent="556" name="type">
+    <column id="597" parent="558" name="type">
       <Position>1</Position>
       <StoredType>TEXT|0s</StoredType>
     </column>
-    <column id="576" parent="556" name="name">
+    <column id="598" parent="558" name="name">
       <Position>2</Position>
       <StoredType>TEXT|0s</StoredType>
     </column>
-    <column id="577" parent="556" name="tbl_name">
+    <column id="599" parent="558" name="tbl_name">
       <Position>3</Position>
       <StoredType>TEXT|0s</StoredType>
     </column>
-    <column id="578" parent="556" name="rootpage">
+    <column id="600" parent="558" name="rootpage">
       <Position>4</Position>
       <StoredType>INT|0s</StoredType>
     </column>
-    <column id="579" parent="556" name="sql">
+    <column id="601" parent="558" name="sql">
       <Position>5</Position>
       <StoredType>TEXT|0s</StoredType>
     </column>
-    <column id="580" parent="557" name="issuer">
+    <column id="602" parent="559" name="issuer">
       <Position>1</Position>
       <StoredType>TEXT|0s</StoredType>
     </column>
-    <column id="581" parent="557" name="date">
+    <column id="603" parent="559" name="date">
       <Position>2</Position>
       <StoredType>TEXT|0s</StoredType>
     </column>
-    <column id="582" parent="557" name="last_trade_price">
+    <column id="604" parent="559" name="last_trade_price">
       <Position>3</Position>
       <StoredType>REAL|0s</StoredType>
     </column>
-    <column id="583" parent="557" name="max">
+    <column id="605" parent="559" name="max">
       <Position>4</Position>
       <StoredType>REAL|0s</StoredType>
     </column>
-    <column id="584" parent="557" name="min">
+    <column id="606" parent="559" name="min">
       <Position>5</Position>
       <StoredType>REAL|0s</StoredType>
     </column>
-    <column id="585" parent="557" name="avg_price">
+    <column id="607" parent="559" name="avg_price">
       <Position>6</Position>
       <StoredType>REAL|0s</StoredType>
     </column>
-    <column id="586" parent="557" name="percent_change">
+    <column id="608" parent="559" name="percent_change">
       <Position>7</Position>
       <StoredType>REAL|0s</StoredType>
     </column>
-    <column id="587" parent="557" name="volume">
+    <column id="609" parent="559" name="volume">
       <Position>8</Position>
       <StoredType>REAL|0s</StoredType>
     </column>
-    <column id="588" parent="557" name="turnover_best">
+    <column id="610" parent="559" name="turnover_best">
       <Position>9</Position>
       <StoredType>REAL|0s</StoredType>
     </column>
-    <column id="589" parent="557" name="total_turnover">
+    <column id="611" parent="559" name="total_turnover">
       <Position>10</Position>
       <StoredType>REAL|0s</StoredType>
     </column>
-    <index id="590" parent="557" name="sqlite_autoindex_stock_data_1">
+    <index id="612" parent="559" name="sqlite_autoindex_stock_data_1">
       <ColNames>issuer
 date</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <Unique>1</Unique>
     </index>
-    <key id="591" parent="557">
+    <key id="613" parent="559">
       <ColNames>issuer
 date</ColNames>
       <Primary>1</Primary>

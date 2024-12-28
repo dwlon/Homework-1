@@ -49,6 +49,24 @@ def fetch_articles(link):
     return article_links, dates
 
 
+def is_file_in_directory(directory, title):
+    files = os.listdir(directory)
+    for file in files:
+        if title in file:
+            return True
+    return False
+
+def wait_for_download(download_dir, title, timeout=60):
+    start_time = time.time()
+    while True:
+        if is_file_in_directory(download_dir, title):
+            return
+
+        if time.time() - start_time > timeout:
+            raise TimeoutError(f"File '{title}' not found in the directory within {timeout} seconds.")
+
+        time.sleep(1)
+
 def extract_news(article_links, dates, issuer, conn):
     options = Options()
 
@@ -65,17 +83,24 @@ def extract_news(article_links, dates, issuer, conn):
     driver = webdriver.Edge(options=options)
 
     for link, date in zip(article_links, dates):
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT 1 FROM news_sentiments WHERE link = ?", (link,))
+        if cursor.fetchone():
+            print(f"Link already processed. Skipping...")
+            continue
+
         driver.get(link)
 
         try:
-            time.sleep(1)
+            time.sleep(0.5)
 
             download_buttons = driver.find_elements(By.XPATH, "//div[contains(@title, '.pdf')]")
 
             paragraphs = driver.find_elements(by=By.TAG_NAME, value='p')
             paragraph_text = ""
 
-            cursor = conn.cursor()
+
 
             for paragraph in paragraphs:
                 paragraph_text += paragraph.text + "\n"
@@ -83,7 +108,7 @@ def extract_news(article_links, dates, issuer, conn):
             if not download_buttons:
                 print("Grabbing paragraphs")
                 temp = paragraph_text
-                title = temp.split('\n')[0]
+                title = temp.strip().split('\n')[0]
 
                 if cursor.fetchone():
                     print(f"Title '{title}' already exists in the database. Skipping...")
@@ -93,71 +118,73 @@ def extract_news(article_links, dates, issuer, conn):
                                             INSERT OR REPLACE INTO news_sentiments (issuer, link, date, title, content, sentiment)
                                             VALUES (?, ?, ?, ?, ?, ?)
                                         ''', (issuer, link, date, title, paragraph_text, calculate_sentiment(paragraph_text)))
-                conn.commit()
                 continue
 
-            title = download_buttons[0].get_attribute('title').split("Превземи датотека ")[1]
-            print(title)
+            for button in download_buttons:
+                title = button.get_attribute('title').split("Превземи датотека ")[1]
+                print(title)
+                cursor.execute("SELECT 1 FROM news_sentiments WHERE title = ?", (title, ))
+                if cursor.fetchone():
+                    print(f"Title '{title}' already exists in the database. Skipping...")
+                    continue
 
+                button.click()
+                # print("Download started...")
 
-            cursor.execute("SELECT 1 FROM news_sentiments WHERE title = ?", (title, ))
-            if cursor.fetchone():
-                print(f"Title '{title}' already exists in the database. Skipping...")
-                continue
+                wait_for_download(download_dir, title)
 
-            for download_button in download_buttons:
-                download_button.click()
+                # print(f"Download completed! Check folder: {download_dir}")
 
-                print("Download started...")
-
-                time.sleep(1)
-
-                print(f"Download completed! Check folder: {download_dir}")
+                read_pdf(issuer, title, link, date, conn)
         except Exception as e:
             print(f"Error: {e}")
         finally:
             continue
 
+    conn.commit()
     driver.quit()
 
-    read_pdfs(issuer, article_links, dates, conn)
 
-def read_pdfs(issuer, links, dates, conn):
+def read_pdf(issuer, file_name, link, date, conn):
     path = os.getcwd()
     pdf_directory = path.replace("scripts", "articles")
 
-    for file_name, link, date in zip(os.listdir(pdf_directory), links, dates):
-        pdf_path = os.path.join(pdf_directory, file_name)
+    pdf_path = os.path.join(pdf_directory, file_name)
 
-        if file_name.endswith(".pdf"):
-            print(f"Reading PDF: {file_name}")
+    if file_name.endswith(".pdf"):
+        print(f"Reading PDF: {file_name}")
 
-            try:
-                reader = PdfReader(pdf_path)
-                content = ""
-                for page_number, page in enumerate(reader.pages):
-                    page_text = page.extract_text()
-                    content += f"{page_text}\n"
+        try:
+            reader = PdfReader(pdf_path)
+            content = ""
+            for page_number, page in enumerate(reader.pages):
+                page_text = page.extract_text()
+                content += page_text
 
-                sentiment = calculate_sentiment(content)
+            sentiment = calculate_sentiment(content)
 
-                conn.execute('''
-                            INSERT OR REPLACE INTO news_sentiments (issuer, link, date, title, content, sentiment)
-                            VALUES (?, ?, ?, ?, ?, ?)
-                        ''', (issuer, link, date, file_name, content, sentiment))
-                conn.commit()
+            # title = file_name.split(".pdf")[0]
+            title = file_name
 
-                time.sleep(2)
+            conn.execute('''
+                        INSERT OR REPLACE INTO news_sentiments (issuer, link, date, title, content, sentiment)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                    ''', (issuer, link, date, title, content, sentiment))
+            conn.commit()
 
-                print(f"Committed {file_name}")
+            time.sleep(1)
 
-                os.remove(pdf_path)
-                print(f"Successfully deleted {file_name}")
+            print(f"Committed {file_name}")
 
-            except Exception as e:
-                print(f"Error reading {file_name}: {e}")
+            os.remove(pdf_path)
 
-    print("All PDFs processed and deleted.")
+            print(f"Successfully deleted {file_name}")
+
+        except Exception as e:
+            print(f"Error reading {file_name}: {e}")
+            return
+
+    print(f"{file_name} processed and deleted.")
 
 
 def calculate_sentiment(text):

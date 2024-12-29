@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import React, {useEffect, useState} from "react";
 import ShowPerformanceMetric from "../components/ShowPerformanceMetric";
-import {useLocation} from "react-router-dom";
+import {useLocation, useSearchParams} from "react-router-dom";
 import {formatNumberToMacedonian, formatDateToMacedonianVersion2} from "../Utils/Helpres"
 const FundamentalAnalysis = () => {
     const [allSymbols, setAllSymbols] = useState([]);
@@ -23,6 +23,7 @@ const FundamentalAnalysis = () => {
 
     const location = useLocation()
     const symbolFromState = location.state?.symbol;
+    const [searchParams] = useSearchParams(); // Hook to access query params
 
     useEffect(() => {
         const fetchSymbols = async () => {
@@ -43,6 +44,13 @@ const FundamentalAnalysis = () => {
         }
 
     }, [symbolFromState]);
+
+    useEffect(() => {
+        const issuerFromParams = searchParams.get('issuer');
+        if (issuerFromParams) {
+            setSelectedSymbol(issuerFromParams);
+        }
+    }, [searchParams]);
 
     useEffect(() => {
         if (selectedSymbol) {

@@ -34,7 +34,7 @@ const PredictionsCard = ({ data }) => {
             }}
         >
             <CardContent>
-                {/* Issuer Name */}
+
                 <Typography
                     variant="subtitle1"
                     component="div"
@@ -47,7 +47,7 @@ const PredictionsCard = ({ data }) => {
                     {name}
                 </Typography>
 
-                {/* Price and Percentage Change */}
+
                 <Box sx={{ display: 'flex', alignItems: 'center', gap:"10px" }}>
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                         {price}den

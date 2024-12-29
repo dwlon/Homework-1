@@ -160,7 +160,7 @@ const ChartsPage = () => {
     }
 
     const navigateFundamental = () => {
-        navigate('/fundamental', { state: { symbol} });
+        navigate(`/fundamental?issuer=${encodeURIComponent(symbol)}`);
     }
 
     function getSentiment() {

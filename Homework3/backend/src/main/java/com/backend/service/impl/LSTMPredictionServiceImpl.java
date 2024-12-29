@@ -32,22 +32,15 @@ public class LSTMPredictionServiceImpl implements LSTMPredictionService {
         // 1) Get evaluation metrics
         EvaluationMetrics metrics = evaluationMetricsRepository.findByIssuer(issuer);
         if (metrics == null) {
-            return null;  // or throw an exception
+            return null;
         }
         double currentPrice = metrics.getLast_trade_price();
 
-        // 2) Get the next 30 day predictions
         List<NextMonthPrediction> predictions = nextMonthPredictionRepository.findByIssuerOrderByDateAsc(issuer);
 
-        // You might want to pick which date is "tomorrow," "nextWeek," "nextMonth"
-        // For simplicity, let's assume the list is always 30 days, sorted ascending:
-        //   tomorrow = predictions.get(0)
-        //   nextWeek = predictions.get(6)
-        //   nextMonth = predictions.get(29)
-        // (Check for index bounds in real code)
 
         if (predictions.size() < 20) {
-            // Not enough predictions? Just handle gracefully
+
             return null;
         }
 
@@ -55,7 +48,6 @@ public class LSTMPredictionServiceImpl implements LSTMPredictionService {
         double nextWeekPrice = predictions.get(5).getPredicted_price();
         double nextMonthPrice = predictions.get(predictions.size()-1).getPredicted_price();
 
-        // 3) Prepare the response DTO
         LSTMPredictionResponseDto dto = new LSTMPredictionResponseDto();
         dto.setIssuer(issuer);
         dto.setR2Score(metrics.getR2());
@@ -107,40 +99,29 @@ public class LSTMPredictionServiceImpl implements LSTMPredictionService {
 
     @Override
     public List<LSTMSummaryResponseDto> findLastPerIssuer() {
-        // 1. Retrieve the latest prediction per issuer
         List<NextMonthPrediction> data = nextMonthPredictionRepository.findLatestPricePerIssuer();
 
-        // 2. Initialize the list to hold DTOs
         List<LSTMSummaryResponseDto> summaryDtoList = new ArrayList<>();
 
-        // 3. Iterate over each prediction and map to DTO
         for (NextMonthPrediction prediction : data) {
             String issuer = prediction.getIssuer();
             Double predictedPrice = prediction.getPredicted_price();
 
-            // 4. Retrieve the current price from EvaluationMetrics
             EvaluationMetrics metrics = evaluationMetricsRepository.findByIssuer(issuer);
             if (metrics != null) {
                 Double currentPrice = metrics.getLast_trade_price();
                 Double percentChange = calcPercentChange(currentPrice, predictedPrice);
 
-                // 5. Create and populate the DTO
                 LSTMSummaryResponseDto summaryDto = new LSTMSummaryResponseDto();
                 summaryDto.setIssuer(issuer);
                 summaryDto.setNextMonthPrice(predictedPrice);
                 summaryDto.setNextMonthPercentChange(percentChange);
 
-                // 6. Add the DTO to the list
                 summaryDtoList.add(summaryDto);
             } else {
-                // Handle cases where EvaluationMetrics is not found for the issuer
-                // You can choose to skip, log, or handle it as per your requirements
-                // For example, skipping the issuer:
-                continue;
             }
         }
 
-        // 7. Return the populated list of DTOs
         return summaryDtoList;
     }
 

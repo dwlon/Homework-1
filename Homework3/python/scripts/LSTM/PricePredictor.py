@@ -161,12 +161,13 @@ def doPrediction(conn, issuer):
             CREATE TABLE IF NOT EXISTS next_month_predictions (
                 issuer TEXT,
                 date DATE,
-                predicted_price REAL
+                predicted_price REAL,
+                PRIMARY KEY (issuer, date)
             )
         """)
     conn.execute(""" 
             CREATE TABLE IF NOT EXISTS evaluation_metrics (
-                issuer TEXT,
+                issuer TEXT PRIMARY KEY,
                 r2 REAL,
                 mae REAL,
                 rmse REAL,
@@ -175,7 +176,11 @@ def doPrediction(conn, issuer):
         """)
     conn.commit()
 
+    print(future_dates)
+
     prediction_data = [(issuer, date.strftime('%Y-%m-%d'), price) for date, price in zip(future_dates, future_prices)]
+
+
 
     mse = mean_squared_error(actual_prices, predicted_prices)
     r2 = r2_score(actual_prices, predicted_prices)
@@ -186,17 +191,16 @@ def doPrediction(conn, issuer):
         return
 
     conn.executemany(""" 
-            INSERT INTO next_month_predictions (issuer, date, predicted_price) VALUES (?, ?, ?)
+            INSERT OR REPLACE INTO next_month_predictions (issuer, date, predicted_price) VALUES (?, ?, ?)
         """, prediction_data)
     evaluation_data = (issuer, r2, mse, rmse, last_trade_price)
     conn.execute(""" 
-            INSERT INTO evaluation_metrics (issuer, r2, mae, rmse, last_trade_price) VALUES (?, ?, ?, ?, ?)
+            INSERT OR REPLACE INTO evaluation_metrics (issuer, r2, mae, rmse, last_trade_price) VALUES (?, ?, ?, ?, ?)
         """, evaluation_data)
     conn.commit()
 
     print(f"Mean Squared Error: {mse}")
     print(f"R2 Score: {r2}")
-
 
 
 def main():

@@ -168,7 +168,8 @@ const FundamentalAnalysis = () => {
     }
 
     return (
-        <Box sx={{p: 4, backgroundColor: '#f5f5f5', borderRadius: 2, maxWidth: 800, margin: '10px auto', height: '120vh'}}>
+        <Box sx={{display:"flex", justifyContent:"center", alignItems:"center"}} >
+        <Box sx={{p: 4, backgroundColor: '#f5f5f5', borderRadius: 2, maxWidth: 800, margin: '20px auto'}}>
             <Typography variant="h5" gutterBottom>
                 Fundamental Analysis
             </Typography>
@@ -396,6 +397,7 @@ const FundamentalAnalysis = () => {
             )}
 
 
+        </Box>
         </Box>
     );
 }

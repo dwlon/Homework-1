@@ -57,9 +57,9 @@ public class IndexController {
      */
     @GetMapping("/issuer-data")
     public ResponseEntity<List<IndexDto>> getIssuerData(
-            @RequestParam String issuer,
-            @RequestParam String startDate,
-            @RequestParam String endDate
+            @RequestParam(name = "issuer") String issuer,
+            @RequestParam(name = "startDate") String startDate,
+            @RequestParam(name = "endDate") String endDate
     ) {
         List<IndexDto> data = indexService.findByIssuerAndDateRange(issuer, startDate, endDate);
         return new ResponseEntity<>(data, HttpStatus.OK);
@@ -81,8 +81,8 @@ public class IndexController {
      */
     @GetMapping("/precomputed-metrics")
     public ResponseEntity<PrecomputedMetricsDto> getPrecomputedMetrics(
-            @RequestParam String issuer,
-            @RequestParam String period
+            @RequestParam(name = "issuer") String issuer,
+            @RequestParam(name  = "period") String period
     ) {
         PrecomputedMetricsDto dto = metricsService.getMetrics(issuer, period);
         if (dto != null) {
@@ -94,7 +94,7 @@ public class IndexController {
 
     @GetMapping("/performance-metrics")
     public ResponseEntity<PerformanceMetricsDto> getPerformanceMetrics(
-            @RequestParam String issuer
+            @RequestParam(name = "issuer") String issuer
     ) {
         PerformanceMetricsDto dto = performanceMetricsService.getPerformanceMetrics(issuer);
         if (dto != null) {
@@ -106,7 +106,7 @@ public class IndexController {
 
     @GetMapping("/news-sentiments")
     public ResponseEntity<List<NewsSentimentsDto>> getNewsSentiments(
-            @RequestParam String issuer
+            @RequestParam(name = "issuer") String issuer
     ) {
         List<NewsSentimentsDto> dtos = newsSentimentsService.getNewsSentiments(issuer);
         if (!dtos.isEmpty()) {

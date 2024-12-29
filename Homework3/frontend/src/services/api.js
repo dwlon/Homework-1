@@ -157,3 +157,36 @@ export const fetchNewsSentiments = async  (issuer) => {
         throw error;
     }
 }
+
+
+export const fetchLSTMPredictions = async (issuer) => {
+    // Calls the new endpoint
+    try {
+    const response = await axios.get(`${API_BASE_URL}/lstm-predictions?issuer=${issuer}`);
+    return response.data; // LSTMPredictionResponseDto
+    } catch (error) {
+        console.error(`Error fetching LSTM Predictions for ${issuer}`, error);
+        throw error;
+    }
+};
+
+// Fetch all distinct issuers
+export const fetchAllLSTMIssuers = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/lstm-issuers`);
+        return response.data; // Array of issuer strings
+    } catch (error) {
+        console.error('Error fetching issuers:', error);
+        throw error;
+    }
+};
+
+export const fetchLSTMSummary = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/lstm/summary`);
+        return response.data; // Should return List<LSTMSummaryResponseDto>
+    } catch (error) {
+        console.error('Error fetching LSTM summary:', error);
+        throw error;
+    }
+};

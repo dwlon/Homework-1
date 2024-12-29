@@ -300,6 +300,7 @@ const ChartsPage = () => {
                             onChartTypeChange={setChartType}
                             onRangeChange={handleRangeChange}
                             allSymbols={allSymbols}
+                            symbol={symbol}
                         />
                     </Box>
 

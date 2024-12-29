@@ -1,49 +1,68 @@
-// PredictionsCard.js
+// src/components/AISection/PredictionsCard.js
+
 import React from 'react';
-import { Box, Paper, CardContent, Typography } from '@mui/material';
+import { Box, Card, CardContent, Typography, Chip } from '@mui/material';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import {useNavigate} from "react-router-dom";
 
 const PredictionsCard = ({ data }) => {
     const { name, price, change, changeColor } = data;
     const isPositive = changeColor === 'green';
+    const navigate = useNavigate();
 
-    return isPositive ? (
-        <Paper
-            elevation={4}
+    const handleClick = () => {
+        // Navigate to /lstm with issuer as a query parameter
+        navigate(`/lstm?issuer=${encodeURIComponent(name)}`);
+    };
+    return (
+        <Card
+            onClick={handleClick}
             sx={{
-                width: 150,
+                minWidth: 200,
+                width: 260,
                 borderRadius: 2,
-                p: 2,
                 boxShadow: 3,
+                backgroundColor: '#fff',
+                transition: 'transform 0.2s, box-shadow 0.2s',
+                cursor: 'pointer',
+                '&:hover': {
+                    transform: 'scale(1.05)',
+                    boxShadow: 6,
+                },
             }}
         >
             <CardContent>
-                <Typography variant="subtitle1" fontWeight="bold">
+                {/* Issuer Name */}
+                <Typography
+                    variant="subtitle1"
+                    component="div"
+                    sx={{
+                        fontWeight: 'bold',
+                        color: '#1976d2',
+                        mb: 1,
+                    }}
+                >
                     {name}
                 </Typography>
-                <Typography variant="body2">{price}</Typography>
-                <Typography variant="body2" sx={{ color: changeColor }}>
-                    {change}
-                </Typography>
+
+                {/* Price and Percentage Change */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap:"10px" }}>
+                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                        {price}den
+                    </Typography>
+                    <Chip
+                        label={`${isPositive ? '+' : '-'}${Math.abs(parseFloat(change))}%`}
+                        icon={isPositive ? <ArrowUpwardIcon color="white"/> : <ArrowDownwardIcon color="white" />}
+                        sx={{
+                            backgroundColor: changeColor,
+                            color: '#fff',
+                            fontWeight: 'bold',
+                        }}
+                    />
+                </Box>
             </CardContent>
-        </Paper>
-    ) : (
-        <Box
-            sx={{
-                width: 150,
-                borderRadius: 2,
-                p: 2,
-            }}
-        >
-            <CardContent>
-                <Typography variant="subtitle1" fontWeight="bold">
-                    {name}
-                </Typography>
-                <Typography variant="body2">{price}</Typography>
-                <Typography variant="body2" sx={{ color: changeColor }}>
-                    {change}
-                </Typography>
-            </CardContent>
-        </Box>
+        </Card>
     );
 };
 

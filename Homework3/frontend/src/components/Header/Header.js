@@ -7,8 +7,8 @@ import imageSvg from "../../assets/Logo.png";
 
 const Header = () => {
     return (
-        <AppBar position="static" sx={{ background: 'black', display: 'flex', pl: 5,  justifyContent: "left"}}>
-            <Toolbar sx={{ display: 'flex'}}>
+        <AppBar position="static" sx={{ background: 'black', display: 'flex', pl: 5,  justifyContent: "center", flexDirection: "row"}}>
+            <Toolbar sx={{ display: 'flex', width:"80vw"}}>
                 <Box sx={{ display: 'flex'}}
                     component="img"
                     src={imageSvg}
@@ -23,19 +23,19 @@ const Header = () => {
                     }}
                 />
                 <Box sx={{ display: 'flex', gap: 2, justifyContent: "space-between", ml: 5}}>
-                    <Link component={RouterLink} to="/" color="inherit" underline="hover" sx={{fontSize: "20px", fontWeight: "bold", mr: 3.5}}>
+                    <Link component={RouterLink} to="/" color="inherit" underline="hover" sx={{fontSize: "20px", mr: 3.5}}>
                         Home
                     </Link>
-                    <Link component={RouterLink} to="/charts" color="inherit" underline="hover" sx={{fontSize: "20px", fontWeight: "bold", mr: 3.5}}>
+                    <Link component={RouterLink} to="/charts" color="inherit" underline="hover" sx={{fontSize: "20px", mr: 3.5}}>
                         Charts
                     </Link>
-                    <Link component={RouterLink} to="/technical" color="inherit" underline="hover" sx={{fontSize: "20px", fontWeight: "bold", mr: 3.5}}>
+                    <Link component={RouterLink} to="/technical" color="inherit" underline="hover" sx={{fontSize: "20px", mr: 3.5}}>
                         Technical Analysis
                     </Link>
-                    <Link component={RouterLink} to="/fundamental" color="inherit" underline="hover" sx={{fontSize: "20px", fontWeight: "bold", mr: 3.5}}>
+                    <Link component={RouterLink} to="/fundamental" color="inherit" underline="hover" sx={{fontSize: "20px", mr: 3.5}}>
                         Fundamental Analysis
                     </Link>
-                    <Link component={RouterLink} to="/lstm" color="inherit" underline="hover" sx={{fontSize: "20px", fontWeight: "bold", mr: 3.5}}>
+                    <Link component={RouterLink} to="/lstm" color="inherit" underline="hover" sx={{fontSize: "20px", mr: 3.5}}>
                         LSTM
                     </Link>
                 </Box>

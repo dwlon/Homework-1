@@ -6,7 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="2f0934ea-574f-4b6e-9f5d-2e11cc7a3519" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/../../database/stock_data.db" beforeDir="false" afterPath="$PROJECT_DIR$/../../database/stock_data.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources/33ec39a3-24be-458c-ab2a-8b8f3d20e616.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/33ec39a3-24be-458c-ab2a-8b8f3d20e616.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/scripts.iml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/LSTM/PricePredictor.py" beforeDir="false" afterPath="$PROJECT_DIR$/LSTM/PricePredictor.py" afterDir="false" />
     </list>
@@ -45,23 +47,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Python.PricePredictor.executor": "Run",
-    "Python.metrics_computer.executor": "Run",
-    "Python.news_sentiments.executor": "Run",
-    "Python.scraper.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "master",
-    "last_opened_file_path": "C:/Users/dwlon/Desktop/Homework-1/Homework3/python/scripts",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python.PricePredictor.executor&quot;: &quot;Run&quot;,
+    &quot;Python.metrics_computer.executor&quot;: &quot;Run&quot;,
+    &quot;Python.news_sentiments.executor&quot;: &quot;Run&quot;,
+    &quot;Python.scraper.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/dwlon/Desktop/Homework-1/Homework3/python/scripts&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -86,6 +88,8 @@
       <workItem from="1734189510826" duration="1235000" />
       <workItem from="1735395213388" duration="8423000" />
       <workItem from="1735406281928" duration="629000" />
+      <workItem from="1735490382163" duration="1270000" />
+      <workItem from="1735491886675" duration="716000" />
     </task>
     <servers />
   </component>
@@ -131,11 +135,12 @@
     </option>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/PricePredictor_py$PricePredictor.coverage" NAME="PricePredictor Coverage Results" MODIFIED="1735492567467" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/LSTM" />
     <SUITE FILE_PATH="coverage/news_sentiments_py$news_sentiments.coverage" NAME="news_sentiments Coverage Results" MODIFIED="1735406504169" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/scripts$scraper.coverage" NAME="scraper Coverage Results" MODIFIED="1734101688940" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/news_sentiments_py$scraper.coverage" NAME="scraper Coverage Results" MODIFIED="1735484970447" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/scripts$metrics_computer.coverage" NAME="metrics_computer Coverage Results" MODIFIED="1734190704667" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/news_sentiments_py$fetch_issuer_links.coverage" NAME="fetch_issuer_links Coverage Results" MODIFIED="1735484964405" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/news_sentiments_py$PricePredictor.coverage" NAME="PricePredictor Coverage Results" MODIFIED="1735487431688" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/LSTM" />
+    <SUITE FILE_PATH="coverage/news_sentiments_py$PricePredictor.coverage" NAME="PricePredictor Coverage Results" MODIFIED="1735491524392" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/LSTM" />
   </component>
 </project>

@@ -95,7 +95,6 @@ def doPrediction(conn, issuer):
         print(f"Insufficient data to create dataset for issuer {issuer}.")
         return
 
-
     features = X.shape[2]
     X = X.reshape(X.shape[0], time_steps, features)
 
@@ -140,6 +139,8 @@ def doPrediction(conn, issuer):
     today = pd.Timestamp.today()
     future_dates = pd.date_range(df['date'].iloc[-1], today + pd.Timedelta(days=30), freq='B')[1:]
 
+    future_dates = future_dates.unique()
+
     for _ in range(len(future_dates)):
         with torch.no_grad():
             future_pred = model(torch.tensor(last_data, dtype=torch.float32)).numpy()
@@ -156,14 +157,14 @@ def doPrediction(conn, issuer):
         last_future_price *= (1 + percent_change / 100)
         future_prices.append(last_future_price)
 
-    conn.execute("""
+    conn.execute(""" 
             CREATE TABLE IF NOT EXISTS next_month_predictions (
                 issuer TEXT,
                 date DATE,
                 predicted_price REAL
             )
         """)
-    conn.execute("""
+    conn.execute(""" 
             CREATE TABLE IF NOT EXISTS evaluation_metrics (
                 issuer TEXT,
                 r2 REAL,
@@ -181,26 +182,28 @@ def doPrediction(conn, issuer):
     rmse = np.sqrt(mse)
     last_trade_price = df['last_trade_price'].iloc[-1]
 
-    conn.executemany("""
+    if r2 <= 0:
+        return
+
+    conn.executemany(""" 
             INSERT INTO next_month_predictions (issuer, date, predicted_price) VALUES (?, ?, ?)
         """, prediction_data)
     evaluation_data = (issuer, r2, mse, rmse, last_trade_price)
-    conn.execute("""
+    conn.execute(""" 
             INSERT INTO evaluation_metrics (issuer, r2, mae, rmse, last_trade_price) VALUES (?, ?, ?, ?, ?)
         """, evaluation_data)
-    conn.commit()
     conn.commit()
 
     print(f"Mean Squared Error: {mse}")
     print(f"R2 Score: {r2}")
 
-    plt.show()
 
 
 def main():
     conn = sqlite3.connect(DB_PATH)
 
     issuers = pd.read_sql_query("SELECT * FROM issuer_links", conn)['issuer'].tolist()
+
     for issuer in issuers:
         doPrediction(conn, issuer)
     conn.close()

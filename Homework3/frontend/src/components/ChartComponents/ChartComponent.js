@@ -18,7 +18,6 @@ const ChartComponent = ({ data, chartType, onChartTypeChange, onRangeChange, fro
         if (!data || data.length === 0) return;
         if (!chartContainerRef.current) return;
 
-        // Clear previous chart
         chartContainerRef.current.innerHTML = '';
 
         const chart = createChart(chartContainerRef.current, {
@@ -58,7 +57,7 @@ const ChartComponent = ({ data, chartType, onChartTypeChange, onRangeChange, fro
             priceSeries = chart.addCandlestickSeries();
             priceSeries.setData(data.map(d => ({
                 time: convertDateFormat(d.date),
-                open: parseNumber(d.last_trade_price), // Assuming open price is last_trade_price
+                open: parseNumber(d.last_trade_price),
                 high: parseNumber(d.max),
                 low: parseNumber(d.min),
                 close: parseNumber(d.last_trade_price)
@@ -77,7 +76,6 @@ const ChartComponent = ({ data, chartType, onChartTypeChange, onRangeChange, fro
             priceSeries = areaSeries;
         } else {
             console.warn(`Unsupported chart type: ${chartType}`);
-            // Optionally, set a default chart type
             priceSeries = chart.addLineSeries({
                 color: '#2196f3',
                 lineWidth: 2
@@ -89,13 +87,11 @@ const ChartComponent = ({ data, chartType, onChartTypeChange, onRangeChange, fro
         }
 
         if (showMinMaxAvgLines && data.length > 0) {
-            // Calculate min, max, and average
             const prices = data.map(d => parseNumber(d.last_trade_price));
             const minPrice = Math.min(...prices);
             const maxPrice = Math.max(...prices);
             const avgPrice = prices.reduce((sum, price) => sum + price, 0) / prices.length;
 
-            // Add Min Price Line
             priceSeries.createPriceLine({
                 price: minPrice,
                 color: 'green',
@@ -105,7 +101,6 @@ const ChartComponent = ({ data, chartType, onChartTypeChange, onRangeChange, fro
                 title: 'Min Price'
             });
 
-            // Add Max Price Line
             priceSeries.createPriceLine({
                 price: maxPrice,
                 color: 'red',
@@ -115,7 +110,6 @@ const ChartComponent = ({ data, chartType, onChartTypeChange, onRangeChange, fro
                 title: 'Max Price'
             });
 
-            // Add Average Price Line
             priceSeries.createPriceLine({
                 price: avgPrice,
                 color: 'orange',
@@ -133,14 +127,13 @@ const ChartComponent = ({ data, chartType, onChartTypeChange, onRangeChange, fro
                 priceFormat: {
                     type: 'volume',
                 },
-                priceScaleId: '', // Set as an overlay
+                priceScaleId: '',
                 scaleMargins: {
-                    top: 0.7, // Highest point of the series will be 70% away from the top
+                    top: 0.7,
                     bottom: 0,
                 },
             });
 
-            // Prepare volume data with dynamic colors based on % change
             const volumeData = data.map(d => ({
                 time: convertDateFormat(d.date),
                 value: parseNumber(d.volume),
@@ -176,9 +169,8 @@ const ChartComponent = ({ data, chartType, onChartTypeChange, onRangeChange, fro
 
     const handleAddCompare = async () => {
         if (!compareSymbol.trim()) return;
-        // Use ISO format for dates as backend expects 'yyyy-mm-dd'
-        const startDate = fromDate; // Assuming fromDate is in 'yyyy-mm-dd'
-        const endDate = toDate;     // Assuming toDate is in 'yyyy-mm-dd'
+        const startDate = fromDate;
+        const endDate = toDate;
         const urlSymbol = compareSymbol.trim().toUpperCase();
         try {
             const compData = await fetchIssuerData(urlSymbol, startDate, endDate);
@@ -199,7 +191,6 @@ const ChartComponent = ({ data, chartType, onChartTypeChange, onRangeChange, fro
                 <ChartTypeSelector chartType={chartType} onChartTypeChange={onChartTypeChange} />
 
                 <ButtonGroup variant="outlined" size="small">
-                    <Button onClick={() => onRangeChange('1W')}>1W</Button>
                     <Button onClick={() => onRangeChange('1M')}>1M</Button>
                     <Button onClick={() => onRangeChange('1Y')}>1Y</Button>
                     <Button onClick={() => onRangeChange('10Y')}>10Y</Button>
@@ -210,7 +201,6 @@ const ChartComponent = ({ data, chartType, onChartTypeChange, onRangeChange, fro
                     label="Show Volume"
                 />
 
-                {/* New Checkbox for Min, Max, Avg Lines */}
                 <FormControlLabel
                     control={<Checkbox checked={showMinMaxAvgLines} onChange={(e) => setShowMinMaxAvgLines(e.target.checked)} />}
                     label="Show Min, Max, Avg Lines"
@@ -226,8 +216,8 @@ const ChartComponent = ({ data, chartType, onChartTypeChange, onRangeChange, fro
                         renderInput={(params) => (
                             <TextField {...params} label="Compare Symbol" variant="outlined" size="small" />
                         )}
-                        sx={{ width: '150px' }}
-                        freeSolo={false} // Restrict to predefined symbols
+                        sx={{ width: '200px' }}
+                        freeSolo={false}
                     />
                     <Button variant="contained" size="small" onClick={handleAddCompare}>Add</Button>
                     <Button variant="outlined" size="small" onClick={handleRemoveCompare}>Remove</Button>

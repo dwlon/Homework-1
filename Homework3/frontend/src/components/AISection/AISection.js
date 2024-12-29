@@ -13,18 +13,17 @@ const AISection = () => {
 
     return (
         <Box sx={{ p: 4, textAlign: 'center', display: 'flex',
-            justifyContent: 'center', // Centers the Paper horizontally
-            alignItems: 'center', // Centers the Paper vertically
+            justifyContent: 'center',
+            alignItems: 'center',
             marginTop: '-100px',
 
         }}>
             <Paper
-                elevation={8} // Adjust elevation as needed for shadow effect
+                elevation={8}
                 sx={{
                     width: "fit-content",
                     borderRadius: 4,
                     padding: 5
-
                 }}
             >
                 <Grid container>
@@ -33,8 +32,8 @@ const AISection = () => {
                         gutterBottom
                         align = "left"
                         sx={{
-                            color: 'white', // White text
-                            textAlign: 'left', // Align text to the left
+                            color: 'white',
+                            textAlign: 'left',
                             bgcolor: '#1976d2',
                             paddingTop: 1,
                             paddingBottom: 1,
@@ -49,10 +48,10 @@ const AISection = () => {
 
                 <Divider
                     sx={{
-                        backgroundColor: 'white', // Divider color
-                        mb: 3, // Margin bottom
-                        mx: 2, // Horizontal margins to avoid touching the ends
-                        width: 'calc(100% - 32px)', // Adjust width based on horizontal margins
+                        backgroundColor: 'white',
+                        mb: 3,
+                        mx: 2,
+                        width: 'calc(100% - 32px)',
                         margin: "15px 0px 20px 0px"
                     }}
                 />

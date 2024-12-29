@@ -8,12 +8,12 @@ const PredictionsCard = ({ data }) => {
 
     return isPositive ? (
         <Paper
-            elevation={4} // Adjust elevation as needed for shadow effect
+            elevation={4}
             sx={{
                 width: 150,
                 borderRadius: 2,
                 p: 2,
-                boxShadow: 3, // Optional: Additional shadow styling
+                boxShadow: 3,
             }}
         >
             <CardContent>

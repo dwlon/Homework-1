@@ -53,6 +53,7 @@ const ChartsFilter = ({ fromDate, toDate, symbol, onFilter }) => {
                         <TextField {...params} label="Symbol" variant="outlined" />
                     )}
                     freeSolo
+                    sx={{width:"100px"}}
                 />
                 <Button variant="contained" onClick={handleFind}>Find</Button>
             </Box>

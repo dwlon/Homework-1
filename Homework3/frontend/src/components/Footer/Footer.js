@@ -33,6 +33,9 @@ const Footer = () => {
                             <Link component={RouterLink} to="/fundamental" color="inherit" underline="hover">
                                 Fundamental Analysis
                             </Link>
+                            <Link component={RouterLink} to="/lstm" color="inherit" underline="hover">
+                                LSTM
+                            </Link>
                         </Box>
                     </Grid>
                     <Grid item xs={12} sm={6} md={4}>
@@ -49,7 +52,7 @@ const Footer = () => {
                 </Grid>
                 <Box sx={{ textAlign: 'center', mt: 4 }}>
                     <Typography variant="body2">
-                        &copy; {new Date().getFullYear()} Your Company. All rights reserved.
+                        &copy; {new Date().getFullYear()} SilkRoad. All rights reserved.
                     </Typography>
                 </Box>
             </Container>

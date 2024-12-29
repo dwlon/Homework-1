@@ -1,6 +1,5 @@
 import {Box, styled, Typography} from "@mui/material";
 import React from "react";
-
 const ShowPerformanceMetric = (props) => {
     return <Box sx={{display: 'flex', justifyContent: 'space-evenly', padding: 0.5}}>
         <Typography sx={{width: "33%", textAlign: "left", fontWeight: "bold"}}>

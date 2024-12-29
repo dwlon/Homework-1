@@ -1,19 +1,19 @@
 import React from 'react';
-import { AppBar, Toolbar, Typography, Box, TextField, InputAdornment } from '@mui/material';
+import { AppBar, Toolbar, Box } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import Link from '@mui/material/Link';
-import SearchIcon from '@mui/icons-material/Search';
 import imageSvg from "../../assets/Logo.png";
 
 const Header = () => {
     return (
         <AppBar position="static" sx={{ background: 'black', display: 'flex', pl: 5,  justifyContent: "center", flexDirection: "row"}}>
             <Toolbar sx={{ display: 'flex', width:"80vw"}}>
-                <Box sx={{ display: 'flex'}}
+                <Box
                     component="img"
                     src={imageSvg}
                     alt="Logo"
                     sx={{
+                        display: 'flex',
                         height: 'auto',
                         maxWidth: 50,
                         borderRadius: 2,

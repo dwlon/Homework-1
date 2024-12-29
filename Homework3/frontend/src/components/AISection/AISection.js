@@ -16,6 +16,7 @@ import PredictionsCard from './PredictionsCard'; // Ensure this component exists
 import { fetchLSTMSummary } from '../../services/api';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import { formatNumberToMacedonian} from "../../Utils/Helpres";
 
 const AISection = () => {
     const [predictionsData, setPredictionsData] = useState([]);
@@ -120,7 +121,7 @@ const AISection = () => {
                                     key={i}
                                     data={{
                                         name: pd.issuer,
-                                        price: pd.nextMonthPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+                                        price: formatNumberToMacedonian(pd.nextMonthPrice),
                                         change: `${pd.nextMonthPercentChange >= 0 ? '+' : ''}${pd.nextMonthPercentChange.toFixed(2)}%`,
                                         changeColor: pd.nextMonthPercentChange >= 0 ? 'green' : 'red',
                                     }}

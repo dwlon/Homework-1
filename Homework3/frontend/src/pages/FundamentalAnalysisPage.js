@@ -9,11 +9,10 @@ import {
     TextField,
     Typography
 } from "@mui/material";
-import ShowMetric from "../components/ShowMetric";
-import {getCounts} from "../Utils/technicalAnalysisUtils";
 import React, {useEffect, useState} from "react";
 import ShowPerformanceMetric from "../components/ShowPerformanceMetric";
 import {useLocation} from "react-router-dom";
+import {formatNumberToMacedonian, formatDateToMacedonianVersion2} from "../Utils/Helpres"
 const FundamentalAnalysis = () => {
     const [allSymbols, setAllSymbols] = useState([]);
     const [selectedSymbol, setSelectedSymbol] = useState("ALK");
@@ -168,6 +167,7 @@ const FundamentalAnalysis = () => {
     }
 
     return (
+        <Box sx={{minHeight: "100vh"}}>
         <Box sx={{display:"flex", justifyContent:"center", alignItems:"center"}} >
         <Box sx={{p: 4, backgroundColor: '#f5f5f5', borderRadius: 2, maxWidth: 800, margin: '20px auto'}}>
             <Typography variant="h5" gutterBottom>
@@ -207,32 +207,32 @@ const FundamentalAnalysis = () => {
                             <Box sx={{display: 'flex', flexDirection: 'column', justifyContent: "center", border: "2px solid lightgray", borderRadius: '10px', mt: 1.5, padding: 1}}>
                                 <ShowPerformanceMetric
                                     title={"Growth 2023 vs. 2022:"}
-                                    value={performanceMetrics?.growth23v22.toFixed(2) + "%"}
+                                    value={formatNumberToMacedonian(performanceMetrics?.growth23v22.toFixed(2)) + "%"}
                                     performance={evaluate("revenue", performanceMetrics?.growth23v22)}
                                 />
                                 <ShowPerformanceMetric
                                     title={"Operating Margin:"}
-                                    value={performanceMetrics?.operating_margin23.toFixed(2) + "%"}
+                                    value={formatNumberToMacedonian(performanceMetrics?.operating_margin23.toFixed(2)) + "%"}
                                     performance={evaluate("operating_margin", performanceMetrics?.operating_margin23)}
                                 />
                                 <ShowPerformanceMetric
                                     title={"Net Margin:"}
-                                    value={performanceMetrics?.net_margin23.toFixed(2) + "%"}
+                                    value={formatNumberToMacedonian(performanceMetrics?.net_margin23.toFixed(2)) + "%"}
                                     performance={evaluate("net_margin", performanceMetrics?.net_margin23)}
                                 />
                                 <ShowPerformanceMetric
                                     title={"Roe:"}
-                                    value={performanceMetrics?.roe23.toFixed(2) + "%"}
+                                    value={formatNumberToMacedonian(performanceMetrics?.roe23.toFixed(2)) + "%"}
                                     performance={evaluate("roe", performanceMetrics?.roe23)}
                                 />
                                 <ShowPerformanceMetric
                                     title={"Debt/Equity:"}
-                                    value={performanceMetrics?.debt_equity23.toFixed(2)}
+                                    value={formatNumberToMacedonian(performanceMetrics?.debt_equity23.toFixed(2))}
                                     performance={evaluate("debt_equity", performanceMetrics?.debt_equity23)}
                                 />
                                 <ShowPerformanceMetric
                                     title={"PE Ratio:"}
-                                    value={performanceMetrics?.pe_ratio23.toFixed(2)}
+                                    value={formatNumberToMacedonian(performanceMetrics?.pe_ratio23.toFixed(2))}
                                     performance={evaluate("pe_ratio", performanceMetrics?.pe_ratio23)}
                                 />
                             </Box>
@@ -243,27 +243,27 @@ const FundamentalAnalysis = () => {
                             <Box sx={{display: 'flex', flexDirection: 'column', justifyContent: "center", border: "2px solid lightgray", borderRadius: '10px', mt: 1.5, padding: 1}}>
                                 <ShowPerformanceMetric
                                     title={"Growth 2022 vs. 2021:"}
-                                    value={performanceMetrics?.growth22v21.toFixed(2) + "%"}
+                                    value={formatNumberToMacedonian(performanceMetrics?.growth22v21.toFixed(2)) + "%"}
                                     performance={evaluate("revenue", performanceMetrics?.growth22v21)}
                                 />
                                 <ShowPerformanceMetric
                                     title={"Operating:"}
-                                    value={performanceMetrics?.operating_margin22.toFixed(2) + "%"}
+                                    value={formatNumberToMacedonian(performanceMetrics?.operating_margin22.toFixed(2)) + "%"}
                                     performance={evaluate("operating_margin", performanceMetrics?.operating_margin22)}
                                 />
                                 <ShowPerformanceMetric
                                     title={"Net Margin:"}
-                                    value={performanceMetrics?.net_margin22.toFixed(2) + "%"}
+                                    value={formatNumberToMacedonian(performanceMetrics?.net_margin22.toFixed(2)) + "%"}
                                     performance={evaluate("net_margin", performanceMetrics?.net_margin22)}
                                 />
                                 <ShowPerformanceMetric
                                     title={"Roe:"}
-                                    value={performanceMetrics?.roe22.toFixed(2) + "%"}
+                                    value={formatNumberToMacedonian(performanceMetrics?.roe22.toFixed(2)) + "%"}
                                     performance={evaluate("roe", performanceMetrics?.roe22)}
                                 />
                                 <ShowPerformanceMetric
                                     title={"Debt/Equity:"}
-                                    value={performanceMetrics?.debt_equity22.toFixed(2)}
+                                    value={formatNumberToMacedonian(performanceMetrics?.debt_equity22.toFixed(2))}
                                     performance={evaluate("debt_equity", performanceMetrics?.debt_equity22)}
                                 />
                             </Box>
@@ -382,7 +382,7 @@ const FundamentalAnalysis = () => {
                                                 </Box>
 
                                                 <Typography variant="body2" color="textSecondary">
-                                                    <strong>Date:</strong> {news.date}
+                                                    <strong>Date:</strong> {formatDateToMacedonianVersion2(news.date.toString(),"/")}
                                                 </Typography>
                                             </Box>
                                         </CardContent>
@@ -397,6 +397,7 @@ const FundamentalAnalysis = () => {
             )}
 
 
+        </Box>
         </Box>
         </Box>
     );

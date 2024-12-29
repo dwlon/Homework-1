@@ -5,6 +5,7 @@ import { Box, Card, CardContent, Typography, Chip } from '@mui/material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import {useNavigate} from "react-router-dom";
+import { formatNumberToMacedonian} from "../../Utils/Helpres";
 
 const PredictionsCard = ({ data }) => {
     const { name, price, change, changeColor } = data;
@@ -52,7 +53,7 @@ const PredictionsCard = ({ data }) => {
                         {price}den
                     </Typography>
                     <Chip
-                        label={`${isPositive ? '+' : '-'}${Math.abs(parseFloat(change))}%`}
+                        label={`${isPositive ? '+' : '-'}${formatNumberToMacedonian(Math.abs(parseFloat(change)))}%`}
                         icon={isPositive ? <ArrowUpwardIcon color="white"/> : <ArrowDownwardIcon color="white" />}
                         sx={{
                             backgroundColor: changeColor,

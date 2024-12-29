@@ -11,9 +11,8 @@ import {
     fetchPerformanceMetrics,
     fetchNewsSentiments
 } from '../services/api';
-import { makeObject, thresholds, getCounts, analyzeIndicators } from "../Utils/technicalAnalysisUtils";
-import Link from '@mui/material/Link';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { getCounts, analyzeIndicators } from "../Utils/technicalAnalysisUtils";
+import { useNavigate } from 'react-router-dom';
 const ChartsPage = () => {
     const today = new Date();
     const fromDateDefault = new Date(today);

@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { fetchLastSevenDaysPerIssuer } from '../../services/api';
 import MarketTable from './MarketTable';
-import { parseNumber } from '../../Utils/Helpres.js';
+import { parseFromMacedonianToNumber } from '../../Utils/Helpres.js';
 
 const MarketUpdate = () => {
     const [category, setCategory] = useState('Gainers');
@@ -35,7 +35,7 @@ const MarketUpdate = () => {
                 const latestDataPoint = sortedData[sortedData.length - 1];
 
                 const last7DaysPrices = sortedData.map((d) => {
-                        return parseNumber(d.last_trade_price)
+                        return parseFromMacedonianToNumber(d.last_trade_price)
                     }
                 );
 
@@ -66,7 +66,7 @@ const MarketUpdate = () => {
         } else if (category === 'Losers') {
             result = result.filter((d) => d.change.indexOf('-')!==-1);
         } else if (category === 'Top Sectors') {
-            result = result.sort((a,b) => parseNumber(b.ltp) - parseNumber(a.ltp))
+            result = result.sort((a,b) => parseFromMacedonianToNumber(b.ltp) - parseFromMacedonianToNumber(a.ltp))
             console.log(result)
         }
 

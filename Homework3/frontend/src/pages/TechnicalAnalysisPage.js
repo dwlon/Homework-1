@@ -11,11 +11,11 @@ import {
 } from '@mui/material';
 import { fetchPrecomputedMetrics, fetchAllIssuers } from '../services/api';
 import ShowMetric from "../components/ShowMetric";
-import { makeObject, thresholds, getCounts, analyzeIndicators } from "../Utils/technicalAnalysisUtils";
+import { getCounts, analyzeIndicators } from "../Utils/technicalAnalysisUtils";
 import {useLocation} from "react-router-dom";
 const TechnicalAnalysis = () => {
     const [allSymbols, setAllSymbols] = useState([]);
-    const [selectedSymbol, setSelectedSymbol] = useState(null);
+    const [selectedSymbol, setSelectedSymbol] = useState("ALK");
     const [selectedPeriod, setSelectedPeriod] = useState('1d');
     const [metrics, setMetrics] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -82,7 +82,8 @@ const TechnicalAnalysis = () => {
     };
 
     return (
-        <Box sx={{p: 4, backgroundColor: '#f5f5f5', borderRadius: 2, maxWidth: 800, margin: '10px auto', height: '100vh'}}>
+        <Box sx={{minHeight: "120vh"}}>
+            <Box sx={{p: 4, backgroundColor: '#f5f5f5', borderRadius: 2, maxWidth: 800, margin: '10px auto', height: '100%', minHeight: "100vh"}}>
             <Typography variant="h5" gutterBottom>
                 Technical Analysis
             </Typography>
@@ -197,6 +198,7 @@ const TechnicalAnalysis = () => {
 
                 </Box>
             )}
+            </Box>
         </Box>
     );
 };

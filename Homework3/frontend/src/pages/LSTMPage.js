@@ -18,6 +18,7 @@ import {
 } from '@mui/material';
 import { useSearchParams } from 'react-router-dom'; // Import for reading query params
 import { fetchAllLSTMIssuers, fetchLSTMPredictions } from '../services/api';
+import {formatNumberToMacedonian, formatDateToMacedonian} from "../Utils/Helpres";
 
 const LSTMPage = () => {
     const [allIssuers, setAllIssuers] = useState([]);
@@ -41,7 +42,6 @@ const LSTMPage = () => {
     }, []);
 
     useEffect(() => {
-        // Read the issuer from query params and set it
         const issuerFromParams = searchParams.get('issuer');
         if (issuerFromParams) {
             setSelectedIssuer(issuerFromParams);
@@ -49,7 +49,6 @@ const LSTMPage = () => {
         } else {
             handleFetch(selectedIssuer);
         }
-        // eslint-disable-next-line
     }, [searchParams]);
 
     const handleFetch = async (issuer) => {
@@ -70,22 +69,37 @@ const LSTMPage = () => {
 
     const formatPercent = (value) => {
         if (value == null) return 'N/A';
-        return `${value.toFixed(2)}%`;
+        return `${formatNumberToMacedonian(value.toFixed(2))}%`;
     };
 
     const formatPrice = (price) => {
         if (price == null) return 'N/A';
-        return price.toFixed(2);
+        return formatNumberToMacedonian(price.toFixed(2));
     };
 
-    // Decide color for percent changes
+    const formatR2 = (num) =>{
+        if (isNaN(num)) return num;
+        if (typeof num !== 'number') parseFloat(num)
+
+        const isNegative = num < 0;
+        num = Math.abs(num);
+
+        const [integerPart, decimalPart] = num.toFixed(3).split('.');
+
+        const withThousands = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+        const formattedNumber = `${withThousands},${decimalPart}`;
+
+        return isNegative ? `-${formattedNumber}` : formattedNumber;
+    }
+
     const getPercentColor = (pct) => {
         if (pct == null) return 'inherit';
         return pct >= 0 ? 'green' : 'red';
     };
 
     return (
-        <Box>
+        <Box sx={{minHeight:"120vh"}}>
             <Box sx={{p: 4, width: "80vw", margin: "10px auto"}}>
                 <Typography variant="h4" gutterBottom>
                     LSTM Predictions
@@ -113,7 +127,6 @@ const LSTMPage = () => {
                             Results
                         </Typography>
 
-                        {/* 4 Boxes Section */}
                         <Box
                             sx={{
                                 display: 'grid',
@@ -122,11 +135,10 @@ const LSTMPage = () => {
                                 mb: 4,
                             }}
                         >
-                            {/* 1) Tomorrow */}
                             <Card sx={{border: '2px solid lightgray', borderRadius: 2}}>
                                 <CardContent>
                                     <Typography variant="h6" sx={{fontWeight: 'bold'}}>
-                                        Tomorrow
+                                        Short Term
                                     </Typography>
                                     <Typography variant="body1">
                                         Predicted Price: {formatPrice(lstmData.tomorrowPrice)} den
@@ -140,11 +152,10 @@ const LSTMPage = () => {
                                 </CardContent>
                             </Card>
 
-                            {/* 2) Next Week */}
                             <Card sx={{border: '2px solid lightgray', borderRadius: 2}}>
                                 <CardContent>
                                     <Typography variant="h6" sx={{fontWeight: 'bold'}}>
-                                        Next Week
+                                        Medium Term
                                     </Typography>
                                     <Typography variant="body1">
                                         Predicted Price: {formatPrice(lstmData.nextWeekPrice)} den
@@ -158,11 +169,10 @@ const LSTMPage = () => {
                                 </CardContent>
                             </Card>
 
-                            {/* 3) Next Month */}
                             <Card sx={{border: '2px solid lightgray', borderRadius: 2}}>
                                 <CardContent>
                                     <Typography variant="h6" sx={{fontWeight: 'bold'}}>
-                                        Next Month
+                                        Long Term
                                     </Typography>
                                     <Typography variant="body1">
                                         Predicted Price: {formatPrice(lstmData.nextMonthPrice)} den
@@ -176,7 +186,6 @@ const LSTMPage = () => {
                                 </CardContent>
                             </Card>
 
-                            {/* 4) Evaluation Metrics */}
                             <Card sx={{border: '2px solid lightgray', borderRadius: 2}}>
                                 <CardContent>
                                     <Typography variant="h6" sx={{fontWeight: 'bold'}}>
@@ -189,13 +198,12 @@ const LSTMPage = () => {
                                         RMSE: {formatPrice(lstmData.rootMeanSquaredError)}
                                     </Typography>
                                     <Typography variant="body1">
-                                        R2: {lstmData.r2Score != null ? lstmData.r2Score.toFixed(3) : 'N/A'}
+                                        R2: {lstmData.r2Score != null ? formatR2(lstmData.r2Score) : 'N/A'}
                                     </Typography>
                                 </CardContent>
                             </Card>
                         </Box>
 
-                        {/* Table Section */}
                         <Typography variant="h6" gutterBottom>
                             Next 30 Days Predictions
                         </Typography>
@@ -210,7 +218,7 @@ const LSTMPage = () => {
                             <TableBody>
                                 {lstmData.predictionRows.map((row, index) => (
                                     <TableRow key={index}>
-                                        <TableCell>{row.date}</TableCell>
+                                        <TableCell>{formatDateToMacedonian(row.date)}</TableCell>
                                         <TableCell>{formatPrice(row.predictedPrice)} den</TableCell>
                                         <TableCell sx={{color: getPercentColor(row.percentChange)}}>
                                             {formatPercent(row.percentChange)}

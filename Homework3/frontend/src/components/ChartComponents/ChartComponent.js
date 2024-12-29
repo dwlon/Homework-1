@@ -15,7 +15,7 @@ import {
 import { createChart, CrosshairMode, LineStyle } from 'lightweight-charts';
 import ChartTypeSelector from './ChartTypeSelector';
 import { fetchIssuerData, fetchLSTMPredictions } from '../../services/api'; // Ensure correct import
-import { convertDateFormat, parseNumber } from "../../Utils/Helpres";
+import { convertDateFormat, parseFromMacedonianToNumber, formatNumberToMacedonianAndDen } from "../../Utils/Helpres";
 
 const ChartComponent = ({
                             data,
@@ -65,6 +65,9 @@ const ChartComponent = ({
                 borderVisible: true,
                 secondsVisible: false,
             },
+            localization: {
+                priceFormatter: formatNumberToMacedonianAndDen,
+            },
         });
 
         chart.timeScale().fitContent();
@@ -79,7 +82,7 @@ const ChartComponent = ({
             priceSeries.setData(
                 data.map((d) => ({
                     time: convertDateFormat(d.date),
-                    value: parseNumber(d.last_trade_price),
+                    value: parseFromMacedonianToNumber(d.last_trade_price),
                 }))
             );
         } else if (chartType === 'candlestick') {
@@ -87,10 +90,10 @@ const ChartComponent = ({
             priceSeries.setData(
                 data.map((d) => ({
                     time: convertDateFormat(d.date),
-                    open: parseNumber(d.last_trade_price),
-                    high: parseNumber(d.max),
-                    low: parseNumber(d.min),
-                    close: parseNumber(d.last_trade_price),
+                    open: parseFromMacedonianToNumber(d.last_trade_price),
+                    high: parseFromMacedonianToNumber(d.max),
+                    low: parseFromMacedonianToNumber(d.min),
+                    close: parseFromMacedonianToNumber(d.last_trade_price),
                 }))
             );
         } else if (chartType === 'area') {
@@ -103,7 +106,7 @@ const ChartComponent = ({
             areaSeries.setData(
                 data.map((d) => ({
                     time: convertDateFormat(d.date),
-                    value: parseNumber(d.last_trade_price),
+                    value: parseFromMacedonianToNumber(d.last_trade_price),
                 }))
             );
             priceSeries = areaSeries;
@@ -116,14 +119,14 @@ const ChartComponent = ({
             priceSeries.setData(
                 data.map((d) => ({
                     time: convertDateFormat(d.date),
-                    value: parseNumber(d.last_trade_price),
+                    value: parseFromMacedonianToNumber(d.last_trade_price),
                 }))
             );
         }
 
         // ----- Optional Min/Max/Avg lines -----
         if (showMinMaxAvgLines && data.length > 0) {
-            const prices = data.map((d) => parseNumber(d.last_trade_price));
+            const prices = data.map((d) => parseFromMacedonianToNumber(d.last_trade_price));
             const minPrice = Math.min(...prices);
             const maxPrice = Math.max(...prices);
             const avgPrice = prices.reduce((sum, price) => sum + price, 0) / prices.length;
@@ -172,7 +175,7 @@ const ChartComponent = ({
             });
 
             const volumeData = data.map((d) => {
-                const volValue = parseNumber(d.volume);
+                const volValue = parseFromMacedonianToNumber(d.volume);
                 // If percent_change is negative => red volume
                 const color = d.percent_change && d.percent_change.includes('-') ? 'red' : 'green';
                 return {
@@ -194,7 +197,7 @@ const ChartComponent = ({
             compSeries.setData(
                 compareData.map((d) => ({
                     time: convertDateFormat(d.date),
-                    value: parseNumber(d.last_trade_price),
+                    value: parseFromMacedonianToNumber(d.last_trade_price),
                 }))
             );
         }
@@ -258,21 +261,22 @@ const ChartComponent = ({
                 // Extract the last data point from historical data
                 const lastDataPoint = data[data.length - 1];
                 if (!lastDataPoint) {
-                    throw new Error('No historical data available to connect predictions.');
+                    setPredictionRows(response.predictionRows);
+
+                }else{
+                    // Create a new PredictionRowDto object
+                    const newRow = {
+                        date: lastDataPoint.date, // Ensure this matches the format expected by the chart
+                        predictedPrice: parseFromMacedonianToNumber(lastDataPoint.last_trade_price), // Starting point for predictions
+                        percentChange: 0, // No change for the last actual data point
+                    };
+
+                    // Prepend the new row to the predictionRows
+                    const updatedPredictionRows = [newRow, ...response.predictionRows];
+
+                    // Update the state with the new prediction rows
+                    setPredictionRows(updatedPredictionRows);
                 }
-
-                // Create a new PredictionRowDto object
-                const newRow = {
-                    date: lastDataPoint.date, // Ensure this matches the format expected by the chart
-                    predictedPrice: parseNumber(lastDataPoint.last_trade_price), // Starting point for predictions
-                    percentChange: 0, // No change for the last actual data point
-                };
-
-                // Prepend the new row to the predictionRows
-                const updatedPredictionRows = [newRow, ...response.predictionRows];
-
-                // Update the state with the new prediction rows
-                setPredictionRows(updatedPredictionRows);
             }
             setShowPredictions(true);
         } catch (err) {

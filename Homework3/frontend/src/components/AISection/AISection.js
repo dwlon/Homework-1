@@ -79,7 +79,7 @@ const AISection = () => {
             >
                 <Grid container>
                     <Typography
-                        variant="h7" // Changed from "p" to "h6" for better semantics
+                        variant="h7"
                         gutterBottom
                         align="left"
                         sx={{

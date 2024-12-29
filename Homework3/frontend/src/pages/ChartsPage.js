@@ -9,7 +9,7 @@ import {
     fetchAllIssuers,
     fetchPrecomputedMetrics,
     fetchPerformanceMetrics,
-    fetchNewsSentiments
+    fetchNewsSentiments, fetchAllLSTMIssuers
 } from '../services/api';
 import { getCounts, analyzeIndicators } from "../Utils/technicalAnalysisUtils";
 import { useNavigate } from 'react-router-dom';
@@ -32,6 +32,7 @@ const ChartsPage = () => {
 
     const [performanceMetrics, setPerformanceMetrics] = useState(null);
     const [newsSentiments, setNewsSentiments] = useState(null);
+    const [allLSTMSymbols, setAllLSTMSymbols] = useState([]);
     const handleAnalyze = async () => {
         if (!symbol) {
             setError('Please select both symbol and period.');
@@ -91,6 +92,17 @@ const ChartsPage = () => {
         };
         fetchSymbols();
         handleAnalyze();
+
+        const fetchLSTMSymbols = async () => {
+            try {
+                const issuers = await fetchAllLSTMIssuers();
+                setAllLSTMSymbols(issuers);
+            } catch (error) {
+                console.error('Failed to fetch issuers:', error);
+            }
+        };
+
+        fetchLSTMSymbols()
     }, []);
 
     useEffect(() => {
@@ -300,6 +312,7 @@ const ChartsPage = () => {
                             onRangeChange={handleRangeChange}
                             allSymbols={allSymbols}
                             symbol={symbol}
+                            allLSTMSymbols = {allLSTMSymbols}
                         />
                     </Box>
 

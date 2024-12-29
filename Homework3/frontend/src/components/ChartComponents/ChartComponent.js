@@ -17,28 +17,17 @@ import ChartTypeSelector from './ChartTypeSelector';
 import { fetchIssuerData, fetchLSTMPredictions } from '../../services/api'; // Ensure correct import
 import { convertDateFormat, parseFromMacedonianToNumber, formatNumberToMacedonianAndDen } from "../../Utils/Helpres";
 
-const ChartComponent = ({
-                            data,
-                            chartType,
-                            onChartTypeChange,
-                            onRangeChange,
-                            fromDate,
-                            toDate,
-                            allSymbols,
-                            symbol  // <-- new prop for current issuer
-                        }) => {
+const ChartComponent = ({data, chartType, onChartTypeChange, onRangeChange, fromDate, toDate, allSymbols, symbol, allLSTMSymbols}) => {
     const chartContainerRef = useRef();
     const [showVolume, setShowVolume] = useState(false);
     const [showMinMaxAvgLines, setShowMinMaxAvgLines] = useState(false);
     const [compareSymbol, setCompareSymbol] = useState('');
     const [compareData, setCompareData] = useState([]);
 
-    // --------------- NEW STATES FOR PREDICTIONS ---------------
     const [showPredictions, setShowPredictions] = useState(false);
     const [predictionRows, setPredictionRows] = useState([]);
     const [isLoadingPredictions, setIsLoadingPredictions] = useState(false);
 
-    // -------------------- CHART RENDERING ---------------------
     useEffect(() => {
         if (!data || data.length === 0) return;
         if (!chartContainerRef.current) return;
@@ -72,7 +61,6 @@ const ChartComponent = ({
 
         chart.timeScale().fitContent();
 
-        // ----- Add main price series -----
         let priceSeries;
         if (chartType === 'line') {
             priceSeries = chart.addLineSeries({
@@ -111,7 +99,6 @@ const ChartComponent = ({
             );
             priceSeries = areaSeries;
         } else {
-            // Fallback
             priceSeries = chart.addLineSeries({
                 color: '#2196f3',
                 lineWidth: 2,
@@ -124,7 +111,6 @@ const ChartComponent = ({
             );
         }
 
-        // ----- Optional Min/Max/Avg lines -----
         if (showMinMaxAvgLines && data.length > 0) {
             const prices = data.map((d) => parseFromMacedonianToNumber(d.last_trade_price));
             const minPrice = Math.min(...prices);
@@ -159,7 +145,6 @@ const ChartComponent = ({
             });
         }
 
-        // ----- Volume series (optional) -----
         let volumeSeries = null;
         if (showVolume) {
             volumeSeries = chart.addHistogramSeries({
@@ -188,7 +173,6 @@ const ChartComponent = ({
             volumeSeries.setData(volumeData);
         }
 
-        // ----- Compare symbol series (optional) -----
         if (compareData.length > 0) {
             const compSeries = chart.addLineSeries({
                 color: '#FF9900',
@@ -202,16 +186,14 @@ const ChartComponent = ({
             );
         }
 
-        // ----- PREDICTIONS series -----
         if (showPredictions && predictionRows.length > 0) { // <-- updated condition
             // Add a dotted line for predicted data
             const predictionsSeries = chart.addLineSeries({
-                color: '#D81B60',   // Choose a distinct color for predictions
+                color: '#D81B60',
                 lineWidth: 2,
-                lineStyle: LineStyle.Dotted, // Dotted line style
+                lineStyle: LineStyle.Dotted,
             });
 
-            // Map predictionRows to {time, value}
             const predictionsData = predictionRows.map((p) => ({
                 time: convertDateFormat(p.date),   // Ensure date format matches
                 value: p.predictedPrice,
@@ -220,7 +202,6 @@ const ChartComponent = ({
             predictionsSeries.setData(predictionsData);
         }
 
-        // ----- Handle Resize -----
         const handleResize = () => {
             chart.applyOptions({ width: chartContainerRef.current.clientWidth });
         };
@@ -237,44 +218,35 @@ const ChartComponent = ({
         showVolume,
         showMinMaxAvgLines,
         compareData,
-        showPredictions,   // re-render if toggled
-        predictionRows,    // re-render if new predictions fetched
+        showPredictions,
+        predictionRows,
     ]);
 
-    // ------------------- FETCHING PREDICTIONS -------------------
     const handleTogglePredictions = async () => {
-        // If user is about to turn OFF predictions:
         if (showPredictions) {
             setShowPredictions(false);
             return;
         }
-
-        // If user is turning ON predictions, fetch them from backend
         try {
             setIsLoadingPredictions(true);
-            setPredictionRows([]);  // Clear old data
+            setPredictionRows([]);
 
-            // symbol is the currently selected issuer
             const response = await fetchLSTMPredictions(symbol);
 
             if (response && response.predictionRows) {
-                // Extract the last data point from historical data
                 const lastDataPoint = data[data.length - 1];
                 if (!lastDataPoint) {
                     setPredictionRows(response.predictionRows);
-
                 }else{
-                    // Create a new PredictionRowDto object
+
                     const newRow = {
-                        date: lastDataPoint.date, // Ensure this matches the format expected by the chart
-                        predictedPrice: parseFromMacedonianToNumber(lastDataPoint.last_trade_price), // Starting point for predictions
-                        percentChange: 0, // No change for the last actual data point
+                        date: lastDataPoint.date,
+                        predictedPrice: parseFromMacedonianToNumber(lastDataPoint.last_trade_price),
+                        percentChange: 0,
                     };
 
-                    // Prepend the new row to the predictionRows
                     const updatedPredictionRows = [newRow, ...response.predictionRows];
 
-                    // Update the state with the new prediction rows
                     setPredictionRows(updatedPredictionRows);
                 }
             }
@@ -287,7 +259,6 @@ const ChartComponent = ({
         }
     };
 
-    // ------------------- COMPARE SYMBOL LOGIC -------------------
     const handleAddCompare = async () => {
         if (!compareSymbol.trim()) return;
         try {
@@ -302,9 +273,9 @@ const ChartComponent = ({
     const handleRemoveCompare = () => {
         setCompareData([]);
     };
+    console.log(allLSTMSymbols)
 
-    // ------------------- CHECK DATA LENGTH ------------------- // <-- new section
-    const isShowPredictionsDisabled = data.length < 100; // <-- new
+    const isShowPredictionsDisabled = !allLSTMSymbols.includes(symbol);
 
     return (
         <Box className="chart-component-container">
@@ -358,12 +329,10 @@ const ChartComponent = ({
                     </Button>
                 </Box>
 
-                {/* ---- NEW: Show Predictions button with Tooltip ---- */}
                 <Tooltip
                     title={isShowPredictionsDisabled ? "The issuer does not have enough data to make predictions." : ""}
                     arrow
                 >
-                    {/* Wrapping Button with Box to handle Tooltip for disabled state */}
                     <Box>
                         <Button
                             variant="contained"
@@ -383,7 +352,6 @@ const ChartComponent = ({
                 </Tooltip>
             </Box>
 
-            {/* Chart container */}
             <Box
                 ref={chartContainerRef}
                 className="chart-area"

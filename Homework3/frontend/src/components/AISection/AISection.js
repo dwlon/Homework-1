@@ -93,7 +93,7 @@ const AISection = () => {
                             borderRadius: 5,
                         }}
                     >
-                        AI Predictions
+                        AI Predictions - Next Month
                     </Typography>
                 </Grid>
 

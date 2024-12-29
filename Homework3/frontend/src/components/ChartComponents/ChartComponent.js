@@ -273,7 +273,6 @@ const ChartComponent = ({data, chartType, onChartTypeChange, onRangeChange, from
     const handleRemoveCompare = () => {
         setCompareData([]);
     };
-    console.log(allLSTMSymbols)
 
     const isShowPredictionsDisabled = !allLSTMSymbols.includes(symbol);
 

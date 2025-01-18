@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  data-access-api:
+    build:
+      context: ./services/data-access-api
+      dockerfile: data-access.Dockerfile  
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./database:/usr/src/app/database 
+    networks:
+      - backend
+    environment:
+      - REACT_APP_API_BASE_URL=http://data-access-api:8081
+
+  metrics-access-api:
+    build:
+      context: ./services/metrics-access-api
+      dockerfile: metrics-access.Dockerfile
+    ports:
+      - "8082:8082"  
+    volumes:
+      - ./database:/usr/src/app/database  
+    networks:
+      - backend
+    environment:
+      - REACT_APP_API_BASE_URL=http://metrics-access-api:8082
+
+  prediction-access-api:
+    build:
+      context: ./services/prediction-access-api
+      dockerfile: prediction-access.Dockerfile
+    ports:
+      - "8083:8083"
+    volumes:
+      - ./database:/usr/src/app/database 
+    networks:
+      - backend
+    environment:
+      - REACT_APP_API_BASE_URL=http://prediction-access-api:8083
+
+  sentimet-access-api:
+    build:
+      context: ./services/sentimets-access-api
+      dockerfile: sentiment-access.Dockerfile 
+    ports:
+      - "8084:8084"
+    volumes:
+      - ./database:/usr/src/app/database 
+    networks:
+      - backend
+    environment:
+      - REACT_APP_API_BASE_URL=http://sentiment-access-api:8084
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: frontend.Dockerfile 
+    ports:
+      - "3000:3000"
+    networks:
+      - frontend
+      - backend
+    environment:
+      - REACT_APP_DATA_ACCESS_API_URL=http://data-access-api:8081
+      - REACT_APP_METRICS_ACCESS_API_URL=http://metrics-access-api:8082
+      - REACT_APP_PREDICTION_ACCESS_API_URL=http://prediction-access-api:8083
+      - REACT_APP_SENTIMENT_ACCESS_API_URL=http://sentiment-access-api:8084
+
+  python-scripts:
+    build:
+      context: ./python/scripts
+      dockerfile: scripts.Dockerfile 
+    networks:
+      - backend
+    command: "python fetch_issuer_links.py && python scraper.py && python metrics_computer.py && python calculate_performance_metrics.py && python news_sentiments.py && python PricePredictor.py"
+
+networks:
+  backend:
+  frontend:

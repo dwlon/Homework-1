@@ -2,10 +2,10 @@ import axios from 'axios';
 
 const getBackendUrl = (service) => {
     const baseUrls = {
-        'data-access-api': process.env.REACT_APP_DATA_ACCESS_API_URL || 'http://localhost:8081',
-        'metrics-access-api': process.env.REACT_APP_METRICS_ACCESS_API_URL || 'http://localhost:8082',
-        'prediction-access-api': process.env.REACT_APP_PREDICTION_ACCESS_API_URL || 'http://localhost:8083',
-        'sentimet-access-api': process.env.REACT_APP_SENTIMENT_ACCESS_API_URL || 'http://localhost:8084',
+        'data-access-api': process.env.REACT_APP_DATA_ACCESS_API_URL,
+        'metrics-access-api': process.env.REACT_APP_METRICS_ACCESS_API_URL,
+        'prediction-access-api': process.env.REACT_APP_PREDICTION_ACCESS_API_URL,
+        'sentimet-access-api': process.env.REACT_APP_SENTIMENT_ACCESS_API_URL,
     };
 
     return baseUrls[service];

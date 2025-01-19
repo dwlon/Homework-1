@@ -5,7 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2f0934ea-574f-4b6e-9f5d-2e11cc7a3519" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../../../Homework3/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Homework3/frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Homework3/backend/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Homework3/backend/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../../docker-compose.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/services/api.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/services/api.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../services/data-access-api/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../../services/data-access-api/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../services/metrics-access-api/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../../services/metrics-access-api/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../services/prediction-access-api/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../../services/prediction-access-api/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../services/sentimets-access-api/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../../services/sentimets-access-api/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -87,6 +94,7 @@
       <workItem from="1735491886675" duration="716000" />
       <workItem from="1737221172368" duration="107000" />
       <workItem from="1737221405836" duration="638000" />
+      <workItem from="1737278911692" duration="54000" />
     </task>
     <servers />
   </component>

@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class SentimetsAccessApiApplication {
+public class SentimentsAccessApiApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SentimetsAccessApiApplication.class, args);
+		SpringApplication.run(SentimentsAccessApiApplication.class, args);
 	}
 
 }

@@ -30,26 +30,26 @@ services:
       context: ./services/prediction-access-api
       dockerfile: prediction-access.Dockerfile
     ports:
-      - "8083:8083"
-    volumes:
-      - ./database:/usr/src/app/database 
-    networks:
-      - backend
-    environment:
-      - REACT_APP_API_BASE_URL=http://prediction-access-api:8083
-
-  sentimet-access-api:
-    build:
-      context: ./services/sentimets-access-api
-      dockerfile: sentiment-access.Dockerfile 
-    ports:
       - "8084:8084"
     volumes:
       - ./database:/usr/src/app/database 
     networks:
       - backend
     environment:
-      - REACT_APP_API_BASE_URL=http://sentiment-access-api:8084
+      - REACT_APP_API_BASE_URL=http://prediction-access-api:8084
+
+  sentimet-access-api:
+    build:
+      context: ./services/sentimets-access-api
+      dockerfile: sentiment-access.Dockerfile 
+    ports:
+      - "8083:8083"
+    volumes:
+      - ./database:/usr/src/app/database 
+    networks:
+      - backend
+    environment:
+      - REACT_APP_API_BASE_URL=http://sentimet-access-api:8083
 
   frontend:
     build:
